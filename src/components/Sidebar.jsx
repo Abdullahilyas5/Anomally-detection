@@ -64,7 +64,7 @@ const Sidebar = ({ role }) => {
               return (
                 <li
                   key={index}
-                  className={`flex gap-4 cursor-pointer text-slate-800 transition-all duration-75 delay-75 text-wrap items-center justify-start ${isActive ? " " :  "hover:text-primary hover:bg-cleanBlue"} py-3 rounded-md ${showMenu ? "hover:border-r-2 px-2" : "px-4"} font-medium text-md border-primary
+                  className={`flex gap-4 cursor-pointer text-slate-800 mt-2 transition-all duration-75 delay-75 text-wrap items-center justify-start ${isActive ? " " :  "hover:text-primary hover:bg-cleanBlue"} py-3 rounded-md ${showMenu ? "hover:border-r-2 px-2" : "px-4"} font-medium text-md border-primary
                     ${isActive ? "bg-softaccent text-primary border-r-2 border-r-accent" : ""}
                   `}
                 >
