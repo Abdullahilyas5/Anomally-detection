@@ -8,13 +8,13 @@ export const Card = ({title , description , icons}) => {
 
     const handleClick = () => {
         if(title === "Admin"){
-            navigate('/admin');
+            navigate('/admin/dashboard');
         }   
-        else if(title === "Editor"){
-            navigate('/editor');
+        else if(title === "Auditor"){
+            navigate('/auditor/dashboard');
         }
         else if(title === "Citizen"){
-            navigate('/citizen');
+            navigate('/citizen/dashboard');
         }
     }
 

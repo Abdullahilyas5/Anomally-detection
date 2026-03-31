@@ -1,10 +1,12 @@
 import axios from "axios"
+import apiClient from "./api-client"
+
 
 
 
 const fetchUser = async () => {
     try {
-        const response = await axios.get('/api/user');
+        const response = await apiClient.get('/user');
         return response.data;
     } catch (error) {
         console.error('Error fetching user:', error);
@@ -14,7 +16,7 @@ const fetchUser = async () => {
 
 const login = async (payload) => {
     try {
-        const response = await axios.post('/api/user/login',{
+        const response = await apiClient.post('/user/login',{
             payload : payload
         });
         return response.data;
@@ -26,7 +28,7 @@ const login = async (payload) => {
 
 const register = async (payload) => {
     try {
-        const response = await axios.post('/api/user/register',{
+        const response = await apiClient.post('/user/register',{
             payload : payload
         });
         return response.data;
@@ -38,7 +40,7 @@ const register = async (payload) => {
 
 const logout = async () => {
     try {
-        const response = await axios.get('/api/user/logout');
+        const response = await apiClient.get('/user/logout');
         return response.data;
     } catch (error) {
         console.error('Error fetching user:', error);
@@ -48,7 +50,7 @@ const logout = async () => {
 
 const resetpassword = async (payload) => {
     try {
-        const response = await axios.post('/api/user/resetpassword', {
+        const response = await apiClient.post('/user/resetpassword', {
             payload: payload
         });
         return response.data;

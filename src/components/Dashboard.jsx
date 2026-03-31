@@ -3,9 +3,9 @@ import { Outlet } from "react-router-dom"; // Outlet for nested routes
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 
-const Dashboard = ({ role }) => {
+const Dashboard = ({ role , children }) => {
   return (
-    <div className="flex min-h-screen bg-background text-textMain">
+    <div className="flex min-h-screen min-w-full bg-background text-textMain">
       {/* Sidebar receives role */}
       <Sidebar role={role} />
 
@@ -16,7 +16,7 @@ const Dashboard = ({ role }) => {
         {/* Main content area */}
         <main className="flex-1 p-8">
           {/* Nested routes will render here */}
-          <Outlet />
+          {children}
         </main>
       </div>
     </div>
