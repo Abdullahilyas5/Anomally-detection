@@ -16,26 +16,33 @@ import { useScreenSize } from '../hooks/useScreen';
 import { useState } from 'react';
 import { setMenuMobile } from '../redux/features/misc/compSlice';
 import LogoutModal from './Admin/Logout';
+import { TbReportSearch } from "react-icons/tb";
+import { FaRegComments } from "react-icons/fa6";
+import { MdOutlineAnalytics } from "react-icons/md";
+import { MdOutlineRequestPage } from "react-icons/md";
+import { IoHomeOutline } from "react-icons/io5";
+import { CiSettings } from "react-icons/ci";
+import { RiListSettingsLine } from "react-icons/ri";
 
 // Sidebar config with paths
 const sidebarConfig = {
   admin: [
-    { label: "Dashboard", icon: <IoHome />, path: "/admin/dashboard" },
+    { label: "Dashboard", icon: <IoHomeOutline />, path: "/admin/dashboard" },
     { label: "Users", icon: <FaRegUser />, path: "/admin/users" },
     { label: "Anomalies", icon: <CgDanger />, path: "/admin/anomalies" },
-    { label: "Configuration", icon: <IoMdSettings />, path: "/admin/configuration" },
+    { label: "Configuration", icon: <RiListSettingsLine />, path: "/admin/configuration" },
     { label: "Logs", icon: <MdOutlineRateReview />, path: "/admin/logs" },
   ],
   auditor: [
-    { label: "Dashboard", icon: <IoHome />, path: "/auditor/dashboard" },
-    { label: "Procurements", icon: <FaFileContract />, path: "/auditor/procurements" },
+    { label: "Dashboard", icon: <IoHomeOutline />, path: "/auditor/dashboard" },
+    { label: "Procurements", icon: <MdOutlineRequestPage />, path: "/auditor/procurements" },
     { label: "Review Anomalies", icon: <MdOutlineRateReview />, path: "/auditor/review-anomalies" },
-    { label: "Anomalies Reports", icon: <MdOutlineRateReview />, path: "/auditor/anomalies-reports" },
-    { label: "Comments", icon: <FaComment />, path: "/auditor/comments" },
-    { label: "Analytics", icon: <MdAnalytics />, path: "/auditor/analytics" },
+    { label: "Anomalies Reports", icon: <TbReportSearch />, path: "/auditor/anomalies-reports" },
+    // { label: "Comments", icon: <FaRegComments />, path: "/auditor/comments" },
+    // { label: "Analytics", icon: <MdOutlineAnalytics />, path: "/auditor/analytics" },
   ],
   citizen: [
-    { label: "Dashboard", icon: <IoHome />, path: "/citizen/dashboard" },
+    { label: "Dashboard", icon: <IoHomeOutline />, path: "/citizen/dashboard" },
     { label: "Reviewed Reports", icon: <MdOutlineRateReview />, path: "/citizen/reviewed-reports" },
     { label: "Procurement Reviews", icon: <FaFileContract />, path: "/citizen/procurement-reviews" },
   ],

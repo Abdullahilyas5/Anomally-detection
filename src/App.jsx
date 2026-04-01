@@ -24,6 +24,8 @@ import AdminLogs from "./components/Admin/AdminLogs";
 // import LogoutModal from "./components/modals/LogoutModal";
 import LogoutModal from "./components/Admin/Logout";
 
+import CSVViewer from "./components/Auditor/Ui/CSVViewer";
+
 // Admin Pages (uncomment when implemented)
 // import AdminDashboard from "./pages/admin/Dashboard";
 // import AdminUsers from "./pages/admin/Users";
@@ -34,9 +36,7 @@ import LogoutModal from "./components/Admin/Logout";
 import AuditorDashboard from "./components/Auditor/AuditorDashboard";
 import AuditorProcurements from "./components/Auditor/AuditorProcurements";
 import ReviewAnomalies from "./components/Auditor/ReviewAnomalies";
-import AuditorComments from "./components/Auditor/AuditorComments";
-import AuditorAnalytics from "./components/Auditor/AuditorAnalytics";
-
+import AnomaliesReports from "./components/Auditor/AnomaliesReports";
 
 
 //? Citizen Pages (uncomment when implemented)
@@ -58,6 +58,9 @@ const App = () => {
           <LogoutModal />
         </Dashboard>
       } />
+
+
+    
 
       {/* Protected Routes for Admin */}
       <Route
@@ -117,6 +120,8 @@ const App = () => {
         }
       />
 
+
+
       <Route path="/auditor/procurements" element={<ProtectedRoute>
         <AuditorPage role="auditor">
           <AuditorProcurements />
@@ -129,17 +134,12 @@ const App = () => {
         </AuditorPage>
       </ProtectedRoute>} />
 
-      <Route path="/auditor/comments" element={<ProtectedRoute>
+      <Route path="/auditor/review-anomalies" element={<ProtectedRoute>
         <AuditorPage role="auditor">
-          <AuditorComments />
+          <AnomaliesReports />
         </AuditorPage>
       </ProtectedRoute>} />
-      <Route path="/auditor/analytics" element={<ProtectedRoute>
-        <AuditorPage role="auditor">
-          <AuditorAnalytics />
-        </AuditorPage>
-      </ProtectedRoute>} />
-
+  
 
       //?Protected Routes for Citizen
 
@@ -153,6 +153,17 @@ const App = () => {
           </ProtectedRoute>
         }
       />
+
+      {/* <Route
+        path="/citizen/procurements"
+        element={
+          <ProtectedRoute>
+            <CitizenPage role="citizen">
+              <CitizenDashboard />
+            </CitizenPage>
+          </ProtectedRoute>
+        }
+      /> */}
 
       <Route path="/citizen/reviewed-reports" element={<ProtectedRoute>
         <CitizenPage role="citizen">
