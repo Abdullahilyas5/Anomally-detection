@@ -10,29 +10,40 @@ import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
 // Single Dashboard for all roles
 import AdminPage from "./pages/admin/AdminPage";
 import CitizenPage from "./pages/citizen/CitizenPage"
-import EditorPage from "./pages/editor/EditorPage"
+import AuditorPage from "./pages/Auditor/AuditorPage";
 
 // Protected Route Component
 import ProtectedRoute from "./components/projectedcomp/ProtectedRoute";
+import AnalyticsDashboard from "./components/Admin/AnalyticsDashboard";
+import Dashboard from "./components/Dashboard";
+import AdminUsers from "./components/Admin/AdminUsers";
+import AdminAnomalies from "./components/Admin/Anomalies";
+import Reports from "./components/admin/Reports";
+import Configuration from "./components/Admin/Configuration";
+import AdminLogs from "./components/Admin/AdminLogs";
+// import LogoutModal from "./components/modals/LogoutModal";
+import LogoutModal from "./components/Admin/Logout";
+
+import CSVViewer from "./components/Auditor/Ui/CSVViewer";
 
 // Admin Pages (uncomment when implemented)
 // import AdminDashboard from "./pages/admin/Dashboard";
 // import AdminUsers from "./pages/admin/Users";
-// import AdminAnomalies from "./pages/admin/Anomalies";
 // import AdminConfiguration from "./pages/admin/Configuration";
-// import AdminLogs from "./pages/admin/Logs";
 
-// Editor Pages (uncomment when implemented)
-// import EditorDashboard from "./pages/editor/Dashboard";
-// import EditorProcurements from "./pages/editor/Procurements";
-// import EditorReviewAnomalies from "./pages/editor/ReviewAnomalies";
-// import EditorComments from "./pages/editor/Comments";
-// import EditorAnalytics from "./pages/editor/Analytics";
 
-// Citizen Pages (uncomment when implemented)
-// import CitizenDashboard from "./pages/citizen/Dashboard";
-// import CitizenReviewedReports from "./pages/citizen/ReviewedReports";
-// import CitizenProcurementReviews from "./pages/citizen/ProcurementReviews";
+//? Auditor Pages (uncomment when implemented)
+import AuditorDashboard from "./components/Auditor/AuditorDashboard";
+import AuditorProcurements from "./components/Auditor/AuditorProcurements";
+import ReviewAnomalies from "./components/Auditor/ReviewAnomalies";
+import AnomaliesReports from "./components/Auditor/AnomaliesReports";
+
+
+//? Citizen Pages (uncomment when implemented)
+
+import CitizenDashboard from "./components/Citizen/CitizenDashboard";
+import CitizenReviewedReports from "./components/Citizen/CitizenReviewedReports";
+import CitizenProcurementReviews from "./components/Citizen/CitizenProcurementReviews";
 
 const App = () => {
   return (
@@ -42,56 +53,131 @@ const App = () => {
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/forgotpassword" element={<ForgotPasswordPage />} />
+      <Route path="/logout" element={
+        <Dashboard role={"citizen"}>
+          <LogoutModal />
+        </Dashboard>
+      } />
+
+
+    
 
       {/* Protected Routes for Admin */}
       <Route
-        path="/admin/*"
+        path="/admin/dashboard"
         element={
           <ProtectedRoute>
-            <AdminPage role="admin" />
+            <AdminPage role="admin">
+              <AnalyticsDashboard />
+            </AdminPage>
           </ProtectedRoute>
         }
       />
-      {/*
-      <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-      <Route path="/admin/users" element={<ProtectedRoute><AdminUsers /></ProtectedRoute>} />
-      <Route path="/admin/anomalies" element={<ProtectedRoute><AdminAnomalies /></ProtectedRoute>} />
-      <Route path="/admin/configuration" element={<ProtectedRoute><AdminConfiguration /></ProtectedRoute>} />
-      <Route path="/admin/logs" element={<ProtectedRoute><AdminLogs /></ProtectedRoute>} />
-      */}
 
-      {/* Protected Routes for Editor */}
-      <Route
-        path="/editor/*"
-        element={
-          <ProtectedRoute>
-            <EditorPage role="editor" />
-          </ProtectedRoute>
-        }
-      />
-      {/*
-      <Route path="/editor/dashboard" element={<ProtectedRoute><EditorDashboard /></ProtectedRoute>} />
-      <Route path="/editor/procurements" element={<ProtectedRoute><EditorProcurements /></ProtectedRoute>} />
-      <Route path="/editor/review-anomalies" element={<ProtectedRoute><EditorReviewAnomalies /></ProtectedRoute>} />
-      <Route path="/editor/comments" element={<ProtectedRoute><EditorComments /></ProtectedRoute>} />
-      <Route path="/editor/analytics" element={<ProtectedRoute><EditorAnalytics /></ProtectedRoute>} />
-      */}
+      <Route path="/admin/users" element={<ProtectedRoute>
+        <AdminPage role="admin">
+          <AdminUsers />
+        </AdminPage>
+      </ProtectedRoute>} />
 
-      {/* Protected Routes for Citizen */}
+
+      <Route path="/admin/anomalies" element={<ProtectedRoute>
+        <AdminPage role="admin">
+          <AdminAnomalies />
+        </AdminPage>
+      </ProtectedRoute>} />
+
+
+      <Route path="/admin/report" element={<ProtectedRoute>
+        <AdminPage role="admin">
+          <Reports />
+        </AdminPage>
+      </ProtectedRoute>} />
+
+      <Route path="/admin/configuration" element={<ProtectedRoute><AdminPage role="admin">
+        <Configuration />
+      </AdminPage>
+      </ProtectedRoute>} />
+
+      <Route path="/admin/logs" element={<ProtectedRoute>
+        <AdminPage role="admin">
+          <AdminLogs />
+        </AdminPage>
+      </ProtectedRoute>} />
+
+
+
+      //? Protected Routes for Auditor
+
       <Route
-        path="/citizen/*"
+        path="/auditor/dashboard"
         element={
           <ProtectedRoute>
-            <CitizenPage role="citizen" />
+            <AuditorPage role="auditor">
+              <AuditorDashboard />
+            </AuditorPage>
           </ProtectedRoute>
         }
       />
-      {/*
-      <Route path="/citizen/dashboard" element={<ProtectedRoute><CitizenDashboard /></ProtectedRoute>} />
-      <Route path="/citizen/reviewed-reports" element={<ProtectedRoute><CitizenReviewedReports /></ProtectedRoute>} />
-      <Route path="/citizen/procurement-reviews" element={<ProtectedRoute><CitizenProcurementReviews /></ProtectedRoute>} />
-      */}
-    </Routes>
+
+
+
+      <Route path="/auditor/procurements" element={<ProtectedRoute>
+        <AuditorPage role="auditor">
+          <AuditorProcurements />
+        </AuditorPage>
+      </ProtectedRoute>} />
+
+      <Route path="/auditor/review-anomalies" element={<ProtectedRoute>
+        <AuditorPage role="auditor">
+          <ReviewAnomalies />
+        </AuditorPage>
+      </ProtectedRoute>} />
+
+      <Route path="/auditor/review-anomalies" element={<ProtectedRoute>
+        <AuditorPage role="auditor">
+          <AnomaliesReports />
+        </AuditorPage>
+      </ProtectedRoute>} />
+  
+
+      //?Protected Routes for Citizen
+
+      <Route
+        path="/citizen/dashboard"
+        element={
+          <ProtectedRoute>
+            <CitizenPage role="citizen">
+              <CitizenDashboard />
+            </CitizenPage>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* <Route
+        path="/citizen/procurements"
+        element={
+          <ProtectedRoute>
+            <CitizenPage role="citizen">
+              <CitizenDashboard />
+            </CitizenPage>
+          </ProtectedRoute>
+        }
+      /> */}
+
+      <Route path="/citizen/reviewed-reports" element={<ProtectedRoute>
+        <CitizenPage role="citizen">
+          <CitizenReviewedReports />
+        </CitizenPage>
+      </ProtectedRoute>} />
+
+      <Route path="/citizen/procurement-reviews" element={<ProtectedRoute>
+        <CitizenPage role="citizen">
+          <CitizenProcurementReviews />
+        </CitizenPage>
+      </ProtectedRoute>} />
+
+    </Routes >
   );
 };
 

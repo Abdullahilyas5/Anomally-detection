@@ -10,7 +10,7 @@ const Homepage = () => {
             <div className="flex flex-1 gap-4 p-10  flex-col flex-2">
                 <h2 className="text-4xl font-heading mb-4 text-primary font-bold">Anomaly Detection in public procurement</h2>
                 <Card title="Admin" description="Manage all system settings and user accounts." icons={<RiAdminLine className="text-accent text-3xl" />} cls="" />
-                <Card title="Editor" description="Generate and view system reports and analytics." icons={<TbUserEdit className="text-accent text-3xl" />} cls="" />
+                <Card title="Auditor" description="Generate and view system reports and analytics." icons={<TbUserEdit className="text-accent text-3xl" />} cls="" />
                 <Card title="Citizen" description="View and manage personal profile and preferences." icons={<FaRegUser className="text-accent text-3xl" />}
                     cls="" />
             </div>

@@ -3,7 +3,7 @@ import {useSelector} from 'react-redux'
 import { useNavigate } from 'react-router-dom';
 import Dashboard from '../../components/Dashboard';
 
-const CitizenPage = ({role}) => {
+const CitizenPage = ({role , children}) => {
     const authState = useSelector((state) => state.auth);
 
     const navigate = useNavigate();
@@ -22,7 +22,7 @@ const CitizenPage = ({role}) => {
 
   return (
     <div className='w-full h-full min-h-screen font-body bg-background'>
-        <Dashboard role={role}/>
+        <Dashboard role={role} children={children}/>
     </div>
   )
 }

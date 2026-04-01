@@ -3,7 +3,7 @@ import {useSelector} from 'react-redux'
 import { useNavigate } from 'react-router-dom';
 import Dashboard from '../../components/Dashboard';
 
-const EditorPage = ({role}) => {
+const AuditorPage = ({role , children}) => {
     const authState = useSelector((state) => state.auth);
 
     const navigate = useNavigate();
@@ -22,9 +22,9 @@ const EditorPage = ({role}) => {
 
   return (
     <div className='w-full h-full min-h-screen font-body bg-background'>
-        <Dashboard role={role}/>
+        <Dashboard role={role} children={children}/>
     </div>
   )
 }
 
-export default EditorPage
+export default AuditorPage
