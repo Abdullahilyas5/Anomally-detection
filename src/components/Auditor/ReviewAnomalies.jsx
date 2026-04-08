@@ -1,84 +1,262 @@
-import React, { useEffect, useState } from "react";
-import Button from "../../components/button"; // your button component
-import axios from "axios";
+import React, { useState, useEffect } from "react";
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  TextField,
+  Button,
+  Stack,
+  Chip,
+  Divider,
+  Collapse,
+  ToggleButton,
+  ToggleButtonGroup
+} from "@mui/material";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 
 const ReviewAnomalies = () => {
   const [anomalies, setAnomalies] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [activeCommentIds, setActiveCommentIds] = useState([]);
+  const [savingIds, setSavingIds] = useState([]);
+  const [filter, setFilter] = useState("all"); // all / mine / others
 
-  // Fetch anomaly summaries from API
+  // Dummy data
   useEffect(() => {
-    axios.get("/api/anomalies-summary") // endpoint returns only file name + short description
-      .then(res => {
-        // Add a local field for auditor comment
-        const dataWithComments = res.data.map(a => ({
-          ...a,
-          auditorComment: ""
-        }));
-        setAnomalies(dataWithComments);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error(err);
-        setLoading(false);
-      });
+    const dummyData = [
+      {
+        id: 1,
+        file_name: "procurement_2026_03.csv",
+        short_description: "Unusual spike in procurement amount on 2026-03-15",
+        severity: "High",
+        auditorComment: "",
+        otherAuditorComments: ["Check invoice total", "Verify vendor account"],
+        isUploader: true,
+        fileUrl: "/files/procurement_2026_03.csv",
+        detected: true,
+        flagged: null
+      },
+      {
+        id: 2,
+        file_name: "procurement_2026_02.csv",
+        short_description: "Multiple small invoices just below threshold",
+        severity: "Medium",
+        auditorComment: "",
+        otherAuditorComments: ["Possible split transactions"],
+        isUploader: false,
+        fileUrl: "/files/procurement_2026_02.csv",
+        detected: true,
+        flagged: null
+      },
+      {
+        id: 3,
+        file_name: "procurement_2026_01.csv",
+        short_description: "Supplier repeated without competitive bidding",
+        severity: "Low",
+        auditorComment: "",
+        otherAuditorComments: [],
+        isUploader: false,
+        fileUrl: "/files/procurement_2026_01.csv",
+        detected: false,
+        flagged: null
+      }
+    ];
+
+    setTimeout(() => setAnomalies(dummyData), 500);
   }, []);
 
-  // Handle auditor comment change
+  const toggleCommentBox = (id) => {
+    setActiveCommentIds(prev =>
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    );
+  };
+
   const handleCommentChange = (id, comment) => {
     setAnomalies(prev =>
       prev.map(a => (a.id === id ? { ...a, auditorComment: comment } : a))
     );
   };
 
-  // Handle save (or report) — send auditor comments to API
-  const saveComments = () => {
-    axios.post("/api/anomalies-comments", anomalies)
-      .then(res => {
-        alert("Comments saved successfully!");
-      })
-      .catch(err => {
-        console.error(err);
-        alert("Failed to save comments.");
-      });
+  const saveComment = (id) => {
+    const anomaly = anomalies.find(a => a.id === id);
+    if (!anomaly) return;
+
+    setSavingIds(prev => [...prev, id]);
+
+    setTimeout(() => {
+      alert(`Comment saved for ${anomaly.file_name}`);
+      setSavingIds(prev => prev.filter(i => i !== id));
+      setActiveCommentIds(prev => prev.filter(i => i !== id));
+    }, 800);
   };
 
-  if (loading) return <p>Loading anomalies...</p>;
-  if (anomalies.length === 0) return <p>No anomalies found.</p>;
+  const openFile = (url) => window.open(url, "_blank");
+
+  const flagAnomaly = (id, flagType) => {
+    setAnomalies(prev =>
+      prev.map(a => (a.id === id ? { ...a, flagged: flagType } : a))
+    );
+  };
+
+  const filteredAnomalies = anomalies.filter(a => {
+    if (filter === "mine") return a.isUploader;
+    if (filter === "others") return !a.isUploader;
+    return true;
+  });
 
   return (
-    <div className="p-6 h-screen flex flex-col">
-      <h2 className="text-lg font-semibold mb-4">Review Anomalies</h2>
+    <Box p={4}>
+      <Typography variant="h5" fontWeight="bold" mb={3}>
+        Review Anomalies
+      </Typography>
 
-      <div className="flex-1 overflow-auto space-y-4">
-        {anomalies.map(a => (
-          <div
-            key={a.id}
-            className="border rounded p-4 bg-gray-50 flex flex-col gap-2"
-          >
-            <p><strong>File:</strong> {a.file_name}</p>
-            <p><strong>Anomaly:</strong> {a.short_description}</p>
-            <div>
-              <label className="block mb-1 font-medium">Auditor Comment:</label>
-              <textarea
-                className="border rounded w-full p-2"
-                rows={2}
-                value={a.auditorComment}
-                onChange={e => handleCommentChange(a.id, e.target.value)}
-              />
-            </div>
-          </div>
-        ))}
-      </div>
+      {/* Filter Buttons */}
+      <ToggleButtonGroup
+        value={filter}
+        exclusive
+        onChange={(e, val) => val && setFilter(val)}
+        sx={{ mb: 3 }}
+      >
+        <ToggleButton value="all">All</ToggleButton>
+        <ToggleButton value="mine">Mine</ToggleButton>
+        <ToggleButton value="others">Others</ToggleButton>
+      </ToggleButtonGroup>
 
-      <div className="mt-4">
-        <Button
-          text="Save Comments"
-          cls="bg-blue-500 text-white px-4 py-2"
-          func={saveComments}
-        />
-      </div>
-    </div>
+      <Stack spacing={3}>
+        {filteredAnomalies.length === 0 && (
+          <Typography>No anomalies to show</Typography>
+        )}
+        {filteredAnomalies.map(a => {
+          const isCommentActive = activeCommentIds.includes(a.id);
+          const isSaving = savingIds.includes(a.id);
+
+          // Minimal background for uploader / neutral
+          const cardBg = a.isUploader ? "rgba(25,118,210,0.05)" : "background.paper";
+
+          return (
+            <Card
+              key={a.id}
+              sx={{ borderLeft: a.isUploader ? "6px solid #1976d2" : "none", bgcolor: cardBg, boxShadow: 2 }}
+            >
+              <CardContent>
+                <Stack spacing={1}>
+                  <Box display="flex" justifyContent="space-between" alignItems="center">
+                    <Typography variant="subtitle1"><strong>File:</strong> {a.file_name}</Typography>
+                    <Stack direction="row" spacing={1}>
+                      {/* Severity badge */}
+                      <Chip
+                        label={a.severity}
+                        color={
+                          a.severity === "High" ? "error" :
+                          a.severity === "Medium" ? "warning" :
+                          "success"
+                        }
+                        size="small"
+                      />
+                      {/* Detection badge */}
+                      <Chip
+                        label={a.detected ? "Detected" : "Not Detected"}
+                        color={a.detected ? "error" : "success"}
+                        size="small"
+                      />
+                      {/* Flag badge */}
+                      {a.flagged && (
+                        <Chip
+                          label={a.flagged === "falsePositive" ? "False Positive" : "False Negative"}
+                          color={a.flagged === "falsePositive" ? "warning" : "secondary"}
+                          size="small"
+                        />
+                      )}
+                    </Stack>
+                  </Box>
+
+                  <Typography variant="body1">{a.short_description}</Typography>
+                  <Divider sx={{ my: 1 }} />
+
+                  {/* Action buttons */}
+                  <Stack direction="row" spacing={1} flexWrap="wrap">
+                    <Button
+                      size="small"
+                      variant={isCommentActive ? "contained" : "outlined"}
+                      onClick={() => toggleCommentBox(a.id)}
+                    >
+                      {isCommentActive ? "Cancel" : "Add Comment"}
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={() => openFile(a.fileUrl)}
+                      endIcon={<OpenInNewIcon />}
+                    >
+                      Open File
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      color="warning"
+                      onClick={() => flagAnomaly(a.id, "falsePositive")}
+                    >
+                      False Positive
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      color="secondary"
+                      onClick={() => flagAnomaly(a.id, "falseNegative")}
+                    >
+                      False Negative
+                    </Button>
+                  </Stack>
+
+                  {/* Collapsible comment box */}
+                  <Collapse in={isCommentActive}>
+                    <Box mt={2}>
+                      <TextField
+                        label="Your Comment"
+                        variant="outlined"
+                        fullWidth
+                        multiline
+                        minRows={2}
+                        value={a.auditorComment}
+                        onChange={e => handleCommentChange(a.id, e.target.value)}
+                        disabled={isSaving}
+                      />
+                      <Box mt={1} display="flex" justifyContent="flex-end">
+                        <Button
+                          variant="contained"
+                          size="small"
+                          color="primary"
+                          onClick={() => saveComment(a.id)}
+                          disabled={isSaving}
+                        >
+                          {isSaving ? "Saving..." : "Save Comment"}
+                        </Button>
+                      </Box>
+                    </Box>
+                  </Collapse>
+
+                  {/* Other auditors' comments */}
+                  {a.otherAuditorComments.length > 0 && (
+                    <Box mt={1}>
+                      <Typography variant="subtitle2" color="text.secondary">
+                        Other Auditors' Comments:
+                      </Typography>
+                      <Stack spacing={0.5} mt={0.5}>
+                        {a.otherAuditorComments.map((c, i) => (
+                          <Card key={i} variant="outlined" sx={{ p: 1, bgcolor: "grey.100", fontSize: "0.9rem" }}>
+                            {c}
+                          </Card>
+                        ))}
+                      </Stack>
+                    </Box>
+                  )}
+                </Stack>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </Stack>
+    </Box>
   );
 };
 
