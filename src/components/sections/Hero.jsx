@@ -16,18 +16,18 @@ const Hero = () => {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h2 className="text-4xl md:text-5xl font-heading font-bold text-white mb-6">
+          <h2 className="text-4xl md:text-5xl font-elegant text-white mb-6">
             Intelligent Oversight for Public Procurement
           </h2>
 
-          <p className="text-white opacity-90 mb-8">
+          <p className="text-white font-mono opacity-90 mb-8">
             Leverage AI to identify irregular bidding patterns, suspicious vendors, and compliance risks in real time
           </p>
 
           {/* ✅ Use your existing Button */}
           <Button
             text="Start Monitoring"
-            variant="dashboard"  
+            variant="accent"  
             onClick={() => {
               Navigate("/signup");
             }}

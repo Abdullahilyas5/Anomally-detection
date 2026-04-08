@@ -25,10 +25,28 @@ export default {
         buttonBg: "#3B82F6",
         buttonHover: "#2563EB",
       },
-      fontFamily: {
-        heading: ["Roboto", "Helvetica", "sans-serif"],
-        body: ["Open Sans", "Arial", "sans-serif"],
-        futuristic: ["Inter", "Segoe UI", "sans-serif"],
+        fontFamily: {
+        // Modern / Bold Headings
+        heading: ["Poppins", "Roboto", "Montserrat", "Oswald", "sans-serif"],
+        display: ["Bebas Neue", "Anton", "Playfair Display", "sans-serif"],
+
+        // Readable Body
+        body: ["Inter", "Open Sans", "Lato", "Arial", "sans-serif"],
+        bodyAlt: ["Nunito", "Rubik", "Quicksand", "sans-serif"],
+
+        // Futuristic / Tech
+        futuristic: ["Orbitron", "Exo 2", "Audiowide", "Segoe UI", "sans-serif"],
+
+        // Script / Joining / Elegant
+        script: ["Dancing Script", "Pacifico", "Allura", "cursive"],
+        elegant: ["Great Vibes", "Satisfy", "Parisienne", "cursive"],
+        handwritten: ["Caveat", "Shadows Into Light", "Patrick Hand", "cursive"],
+
+        // Decorative / Special
+        decorative: ["Lobster", "Fredericka the Great", "Kaushan Script", "cursive"],
+
+        // Monospace / Coding
+        mono: ["Fira Code", "Courier New", "JetBrains Mono", "monospace"],
       },
     },
   },

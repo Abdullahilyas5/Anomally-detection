@@ -41,6 +41,16 @@ const VARIANT_STYLES = {
   // 🧾 Dashboard style
   dashboard:
     "bg-DashboardBack text-primary border border-borderSlate hover:bg-softBlue",
+
+  mild:
+    "bg-gray-100 text-gray-700 hover:bg-gray-200",
+
+  disco : 
+    "bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:from-pink-600 hover:to-purple-600",
+
+  neutral_blue : 
+    "bg-blue-600 text-white hover:bg-blue-500",
+
 };
 
 const Button = ({
@@ -50,6 +60,7 @@ const Button = ({
   boxClass = "",
   onClick,
   fullWidth = false,
+  Icon , 
 }) => {
   const variantClass = VARIANT_STYLES[variant];
 
@@ -63,10 +74,12 @@ const Button = ({
           px-4 py-3 rounded-lg
           text-sm font-medium
           transition-all duration-200
+          flex gap-2
           ${className}
            my-2 
         `}
       >
+        {Icon && <span className="ml-2">{Icon}</span>}
         {text}
       </button>
     </div>

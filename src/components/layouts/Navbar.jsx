@@ -35,12 +35,14 @@ const Navbar = () => {
       className="flex justify-between items-center px-6 md:px-12 py-4 z-10 bg-card border-b border-borderSlate sticky top-0"
     >
       {/* Logo */}
-      <ScrollLink
-        to="/"
-        className="text-2xl font-heading text-primary font-extrabold cursor-pointer"
-      >
-        ProcureGuard
-      </ScrollLink>
+      <h1>
+        <ScrollLink
+          to="/"
+          className="text-2xl font-bold bg-slate-200 font-heading text-primary px-2 py-1 rounded-md cursor-pointer"
+        >
+          ProcureGuard
+        </ScrollLink>
+      </h1>
 
       {/* Navigation */}
       <div className="hidden md:flex gap-8 items-center text-sm">
@@ -51,7 +53,7 @@ const Navbar = () => {
           offset={-30}
           className="cursor-pointer hover:text-primary"
         >
-          Features
+          <span className="font-body ">Features</span>
         </ScrollLink>
 
         <ScrollLink
@@ -61,7 +63,7 @@ const Navbar = () => {
           offset={-250}
           className="cursor-pointer hover:text-primary"
         >
-          How It Works
+          <span className="font-body ">How It Works</span>
         </ScrollLink>
 
         <ScrollLink
@@ -71,7 +73,7 @@ const Navbar = () => {
           offset={-30}
           className="cursor-pointer hover:text-primary"
         >
-          About
+          <span className="font-body ">About</span>
         </ScrollLink>
 
         {/* 🔥 Conditional Rendering */}
@@ -81,14 +83,14 @@ const Navbar = () => {
               <Button
                 text="Sign In"
                 variant="outline"
-                className="border border-primary text-primary hover:bg-primary hover:text-white"
+                className="border border-primary font-serif text-primary hover:bg-primary hover:text-black"
               />
             </Link>
 
             <Link to="/signup">
               <Button
                 text="Get Started"
-                className="bg-buttonBg text-white hover:bg-buttonHover"
+                className="bg-buttonBg text-white font-serif hover:bg-buttonHover"
               />
             </Link>
           </>

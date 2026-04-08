@@ -44,6 +44,9 @@ import CitizenDashboard from "./components/Citizen/CitizenDashboard";
 import CitizenReviewedReports from "./components/Citizen/CitizenReviewedReports";
 import CitizenProcurementReviews from "./components/Citizen/CitizenProcurementReviews";
 import Signup from "./components/sections/Signup";
+import ConfirmationRoleTable from "./components/Admin/ConfirmationRoleTable";
+import SettingsPage from "./components/Admin/SettingsPage";
+import Notificaiton from "./components/Admin/Notificaiton";
 
 const App = () => {
   return (
@@ -71,6 +74,18 @@ const App = () => {
           <ProtectedRoute>
             <AdminPage role="admin">
               <AnalyticsDashboard />
+            </AdminPage>
+          </ProtectedRoute>
+        }
+      />
+
+
+      <Route
+        path="/admin/dashboard/requests"
+        element={
+          <ProtectedRoute>
+            <AdminPage role="admin">
+              <ConfirmationRoleTable />
             </AdminPage>
           </ProtectedRoute>
         }
@@ -108,6 +123,13 @@ const App = () => {
       </ProtectedRoute>} />
 
 
+      <Route path="/admin/settings" element={<ProtectedRoute>
+        <AdminPage role="admin">
+          <SettingsPage/>
+        </AdminPage>
+      </ProtectedRoute>} />
+
+
 
       //? Protected Routes for Auditor
 
@@ -141,6 +163,12 @@ const App = () => {
           <AnomaliesReports />
         </AuditorPage>
       </ProtectedRoute>} /> */}
+
+      <Route path="/auditor/settings" element={<ProtectedRoute>
+        <AdminPage role="auditor">
+          <SettingsPage/>
+        </AdminPage>
+      </ProtectedRoute>} />
   
 
       //?Protected Routes for Citizen
@@ -178,6 +206,24 @@ const App = () => {
           <CitizenProcurementReviews />
         </CitizenPage>
       </ProtectedRoute>} />
+
+
+      <Route path="/citizen/settings" element={<ProtectedRoute>
+        <AdminPage role="citizen">
+          <SettingsPage/>
+        </AdminPage>
+      </ProtectedRoute>} />
+
+
+      //? Notification
+
+      <Route path="/citizen/notify" element={<ProtectedRoute>
+        <AdminPage role="citizen">
+          <Notificaiton/>
+        </AdminPage>
+      </ProtectedRoute>} />
+
+
 
     </Routes >
   );

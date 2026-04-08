@@ -23,12 +23,14 @@ import { MdOutlineRequestPage } from "react-icons/md";
 import { IoHomeOutline } from "react-icons/io5";
 import { CiSettings } from "react-icons/ci";
 import { RiListSettingsLine } from "react-icons/ri";
+import ModelTrainingIcon from '@mui/icons-material/ModelTraining';
 
 // Sidebar config with paths
 const sidebarConfig = {
   admin: [
     { label: "Dashboard", icon: <IoHomeOutline />, path: "/admin/dashboard" },
     { label: "Users", icon: <FaRegUser />, path: "/admin/users" },
+    { label: "Train Model", icon: <ModelTrainingIcon />, path: "/admin/train" },
     { label: "Anomalies", icon: <CgDanger />, path: "/admin/anomalies" },
     { label: "Configuration", icon: <RiListSettingsLine />, path: "/admin/configuration" },
     { label: "Logs", icon: <MdOutlineRateReview />, path: "/admin/logs" },
@@ -103,7 +105,11 @@ const Sidebar = ({ role }) => {
 
           <div>
             {/* Settings */}
-            <li className={`flex gap-4 cursor-pointer hover:text-primary hover:bg-cleanBlue text-slate-800 transition-all duration-75 delay-75 text-wrap items-center justify-start py-3 rounded-md ${showMenu ? "hover:border-r-2 px-2" : "px-4"} font-medium text-md border-primary`}>
+            <li
+            onClick={()=>{
+              navigate(`/${role}/settings`)
+            }}
+            className={`flex gap-4 cursor-pointer hover:text-primary hover:bg-cleanBlue text-slate-800 transition-all duration-75 delay-75 text-wrap items-center justify-start py-3 rounded-md ${showMenu ? "hover:border-r-2 px-2" : "px-4"} font-medium text-md border-primary`}>
               <IoMdSettings />
               {showMenu && <span>Settings</span>}
             </li>
