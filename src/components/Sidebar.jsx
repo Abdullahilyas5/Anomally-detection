@@ -35,9 +35,9 @@ const sidebarConfig = {
   ],
   auditor: [
     { label: "Dashboard", icon: <IoHomeOutline />, path: "/auditor/dashboard" },
-    { label: "Procurements", icon: <MdOutlineRequestPage />, path: "/auditor/procurements" },
+    { label: "Add Procurements", icon: <MdOutlineRequestPage />, path: "/auditor/procurements" },
     { label: "Review Anomalies", icon: <MdOutlineRateReview />, path: "/auditor/review-anomalies" },
-    { label: "Anomalies Reports", icon: <TbReportSearch />, path: "/auditor/anomalies-reports" },
+    // { label: "Anomalies Reports", icon: <TbReportSearch />, path: "/auditor/anomalies-reports" },
     // { label: "Comments", icon: <FaRegComments />, path: "/auditor/comments" },
     // { label: "Analytics", icon: <MdOutlineAnalytics />, path: "/auditor/analytics" },
   ],

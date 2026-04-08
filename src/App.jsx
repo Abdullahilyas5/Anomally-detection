@@ -3,7 +3,6 @@ import { Routes, Route } from "react-router-dom";
 
 // Auth Pages
 import Homepage from "./pages/auth/Homepage";
-import SignupPage from "./pages/auth/SignupPage";
 import LoginPage from "./pages/auth/LoginPage";
 import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
 
@@ -36,21 +35,24 @@ import CSVViewer from "./components/Auditor/Ui/CSVViewer";
 import AuditorDashboard from "./components/Auditor/AuditorDashboard";
 import AuditorProcurements from "./components/Auditor/AuditorProcurements";
 import ReviewAnomalies from "./components/Auditor/ReviewAnomalies";
-import AnomaliesReports from "./components/Auditor/AnomaliesReports";
-
+// import AnomaliesReports from "./components/Auditor/AnomaliesReports";
+import LandingPage from "./pages/LandingPage";
 
 //? Citizen Pages (uncomment when implemented)
 
 import CitizenDashboard from "./components/Citizen/CitizenDashboard";
 import CitizenReviewedReports from "./components/Citizen/CitizenReviewedReports";
 import CitizenProcurementReviews from "./components/Citizen/CitizenProcurementReviews";
+import Signup from "./components/sections/Signup";
 
 const App = () => {
   return (
     <Routes>
       {/* Auth Routes */}
-      <Route path="/" element={<Homepage />} />
-      <Route path="/signup" element={<SignupPage />} />
+
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/homepage" element={<Homepage />} />
+      <Route path="/signup" element={<Signup />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/forgotpassword" element={<ForgotPasswordPage />} />
       <Route path="/logout" element={
@@ -134,11 +136,11 @@ const App = () => {
         </AuditorPage>
       </ProtectedRoute>} />
 
-      <Route path="/auditor/review-anomalies" element={<ProtectedRoute>
+      {/* <Route path="/auditor/anomalies-reports" element={<ProtectedRoute>
         <AuditorPage role="auditor">
           <AnomaliesReports />
         </AuditorPage>
-      </ProtectedRoute>} />
+      </ProtectedRoute>} /> */}
   
 
       //?Protected Routes for Citizen

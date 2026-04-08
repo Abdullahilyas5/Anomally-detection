@@ -15,6 +15,7 @@ import {
   Legend,
   ReferenceLine
 } from "recharts";
+import { useSelector } from "react-redux";
 
 import {
   ScatterChart, Scatter,
@@ -28,6 +29,8 @@ const AnalyticsGraph = () => {
     from: "",
     to: ""
   });
+
+  const { role } = useSelector((state) => state.auth);
 
   const anomalyData = [
     { date: "2026-03-01", anomalies: 3 },
@@ -51,6 +54,7 @@ const AnalyticsGraph = () => {
     { month: "Nov", "2022": 6, "2023": 5, "2024": 8, "2025": 9, "2026": 7 },
     { month: "Dec", "2022": 12, "2023": 14, "2024": 10, "2025": 12, "2026": 15 }
   ];
+
 
   const heatmapPoints = [];
 
@@ -91,6 +95,14 @@ const AnalyticsGraph = () => {
     return item.date >= dates.from && item.date <= dates.to;
 
   });
+
+
+  const recentUsers = [
+    { id: 1, name: "Abdullah Ilyas", email: "abdullah@example.com", role: "admin", date: "2026-04-01" },
+    { id: 2, name: "sania Khan", email: "sania@example.com", role: "Admin", date: "2026-04-02" },
+    { id: 3, name: "Ali Raza", email: "ali@example.com", role: "Citizen", date: "2026-04-03" },
+    { id: 4, name: "Sara Ahmed", email: "sara@example.com", role: "Auditor", date: "2026-04-04" },
+  ];
 
   return (
     <div className="bg-white rounded-md shadow-lg p-2 mt-4 ">
@@ -167,16 +179,17 @@ const AnalyticsGraph = () => {
 
       </div>
 
-      <div className="grid p-2 grid-cols-1 md:grid-cols-2 gap-4">
+      <div className={role === "Admin" ? "grid p-2 grid-cols-1 md:grid-cols-2 gap-4" : "grid p-2 grid-cols-1 md:grid-cols-1 gap-4"}>
 
 
         {/* Anomaly Distribution Pie Chart */}
-        <div className="min-h-96 h-full my-2 bg-softaccent rounded-lg text-wrap p-4 mb-10">
+        <div className="min-h-96 h-full my-2 bg-background py-4 rounded-lg text-wrap p-4 mb-10">
+         
           <h3 className="text-sm font-semibold mb-2">
             Anomaly Distribution
           </h3>
 
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height="90%">
             <PieChart>
               <Pie
                 data={distributionData}
@@ -197,6 +210,33 @@ const AnalyticsGraph = () => {
             </PieChart>
           </ResponsiveContainer>
         </div>
+
+        {/* Recent User Registrations Table */}
+       {role === "Admin" && (
+          <div className="bg-white rounded-lg shadow p-4 mt-2">
+            <h3 className="text-lg font-bold text-primary mb-4">Recent User Registrations</h3>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm border">
+              <thead className="bg-gray-100 text-left text-gray-600">
+                <tr>
+                  <th className="p-3">Name</th>
+                  <th className="p-3">Email</th>
+                  <th className="p-3">Role</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentUsers.map((user) => (
+                  <tr key={user.id} className="border-t hover:bg-gray-50">
+                    <td className="p-3 font-medium">{user.name}</td>
+                    <td className="p-3">{user.email}</td>
+                    <td className="p-3">{user.role}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>)}
 
       </div>
     </div>

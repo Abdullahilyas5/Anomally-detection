@@ -3,7 +3,7 @@ import Button from "../../button";
 import { useNavigate } from "react-router-dom";
 import { IoIosClose } from "react-icons/io";
 
-const FileCard = ({ file, onRemove }) => {
+const FileCard = ({ file, onRemove , handleUpload}) => {
   const [status, setStatus] = useState("Uploaded");
   const [loading, setLoading] = useState(false);
 

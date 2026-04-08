@@ -4,9 +4,11 @@ import { createSlice } from '@reduxjs/toolkit'
 const authSlice = createSlice({
     name: 'auth',
     initialState: {
-        isAuthenticated: false,
+        isAuthenticated: true,
         user: null,
-        role : null,
+        // role : "citizen",
+        // role : "auditor",
+        role : "admin",
         
     },
     reducers: { 

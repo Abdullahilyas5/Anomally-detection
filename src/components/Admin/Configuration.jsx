@@ -78,45 +78,6 @@ const Configuration = () => {
         </div>
       </div>
 
-      {/* Detection Rules */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
-
-        <h3 className="text-lg font-semibold mb-4">Detection Rules</h3>
-
-        <label className="block">
-          <input
-            type="checkbox"
-            checked={rules.bidSpike}
-            onChange={() =>
-              setRules({ ...rules, bidSpike: !rules.bidSpike })
-            }
-          /> Bid Price Spike
-        </label>
-
-        <label className="block">
-          <input
-            type="checkbox"
-            checked={rules.singleBidder}
-            onChange={() =>
-              setRules({ ...rules, singleBidder: !rules.singleBidder })
-            }
-          /> Single Bidder
-        </label>
-
-        <label className="block">
-          <input
-            type="checkbox"
-            checked={rules.contractSplitting}
-            onChange={() =>
-              setRules({
-                ...rules,
-                contractSplitting: !rules.contractSplitting
-              })
-            }
-          /> Contract Splitting
-        </label>
-
-      </div>
 
       {/* Model Training Settings */}
       <div className="bg-white rounded-lg shadow-sm p-6">

@@ -11,7 +11,17 @@ const AdminUsers = () => {
         id: 1,
         name: "John Doe",
         email: "john@gmail.com",
-    }]);
+        role: "Admin",
+        status: "Active"
+    },
+    {
+        id: 2,
+        name: "Jane Smith",
+        email: "jane@gmail.com",
+        role: "Auditor",
+        status: "Active"
+    },
+    ]);
 
     const [search, setSearch] = useState("")
     const [filter, setFilter] = useState("All")
