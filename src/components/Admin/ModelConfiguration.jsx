@@ -89,7 +89,25 @@ const ModelConfiguration = () => {
                 />
                 <p className="text-xs text-textSecondary mt-1">Number of training iterations</p>
               </div>
+
               <div>
+                <label className="block text-textMain font-medium mb-2">Threshold</label>
+                <input
+                  type="number"
+                  name="threshold"
+                  value={config.threshold}
+                  onChange={handleChange}
+                  step="0.01"
+                  min="0"
+                  max="1"
+                  className="w-full px-3 py-2 border border-borderSlate rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+                <p className="text-xs text-textSecondary mt-1">Anomaly detection threshold</p>
+              </div>
+
+
+
+              {/* <div>
                 <label className="block text-textMain font-medium mb-2">Learning Rate</label>
                 <input
                   type="number"
@@ -129,12 +147,13 @@ const ModelConfiguration = () => {
                   className="w-full px-3 py-2 border border-borderSlate rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                 />
                 <p className="text-xs text-textSecondary mt-1">Fraction of data for validation</p>
-              </div>
+              </div> */}
             </div>
           </motion.div>
 
           {/* Detection Parameters */}
-          <motion.div
+          
+          {/* <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -162,7 +181,7 @@ const ModelConfiguration = () => {
             </div>
           </motion.div>
 
-          {/* Early Stopping */}
+         
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -217,7 +236,6 @@ const ModelConfiguration = () => {
             </div>
           </motion.div>
 
-          {/* Model Architecture */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -266,7 +284,7 @@ const ModelConfiguration = () => {
                 </select>
               </div>
             </div>
-          </motion.div>
+          </motion.div> */}
 
           {/* Action Buttons */}
           <motion.div
