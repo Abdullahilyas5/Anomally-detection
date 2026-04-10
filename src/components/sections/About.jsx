@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import Button from "../../components/button";
 import { FiEye, FiShield, FiZap } from "react-icons/fi";
+import AccountBoxRoundedIcon from '@mui/icons-material/AccountBoxRounded';
 
 const AboutSection = () => {
   const containerVariants = {
@@ -90,7 +91,7 @@ const AboutSection = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            ✨ About ProcureGuard
+           ✨ About ProcureGuard
           </motion.span>
 
           <motion.h2

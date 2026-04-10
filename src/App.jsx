@@ -31,10 +31,19 @@ import CSVViewer from "./components/Auditor/Ui/CSVViewer";
 // import AdminConfiguration from "./pages/admin/Configuration";
 
 
+import TrainModel from "./components/Admin/TrainModel";
+import ModelConfiguration from "./components/Admin/ModelConfiguration";
+import AddProcurement from "./components/Admin/AddProcurement";
+import Docs from "./components/Admin/Docs";
+
+
 //? Auditor Pages (uncomment when implemented)
 import AuditorDashboard from "./components/Auditor/AuditorDashboard";
 import AuditorProcurements from "./components/Auditor/AuditorProcurements";
 import ReviewAnomalies from "./components/Auditor/ReviewAnomalies";
+import AuditorManualUpload from "./components/Auditor/AuditorManualUpload";
+import AuditorCsvUpload from "./components/Auditor/AuditorCsvUpload";
+import AuditorPdfUpload from "./components/Auditor/AuditorPdfUpload";
 // import AnomaliesReports from "./components/Auditor/AnomaliesReports";
 import LandingPage from "./pages/LandingPage";
 
@@ -65,7 +74,7 @@ const App = () => {
       } />
 
 
-    
+
 
       {/* Protected Routes for Admin */}
       <Route
@@ -122,13 +131,40 @@ const App = () => {
         </AdminPage>
       </ProtectedRoute>} />
 
-
-      <Route path="/admin/settings" element={<ProtectedRoute>
+      <Route path="/admin/docs" element={<ProtectedRoute>
         <AdminPage role="admin">
-          <SettingsPage/>
+          <Docs />
         </AdminPage>
       </ProtectedRoute>} />
 
+
+      <Route path="/admin/settings" element={<ProtectedRoute>
+        <AdminPage role="admin">
+          <SettingsPage />
+        </AdminPage>
+      </ProtectedRoute>} />
+
+
+
+
+      <Route path="/admin/train" element={<ProtectedRoute>
+        <AdminPage role="admin">
+          <TrainModel />
+        </AdminPage>
+      </ProtectedRoute>} />
+
+
+      <Route path="/admin/model-configuration" element={<ProtectedRoute>
+        <AdminPage role="admin">
+          <ModelConfiguration />
+        </AdminPage>
+      </ProtectedRoute>} />
+
+      <Route path="/admin/add-procurement" element={<ProtectedRoute>
+        <AdminPage role="admin">
+          <AddProcurement />
+        </AdminPage>
+      </ProtectedRoute>} />
 
 
       //? Protected Routes for Auditor
@@ -158,6 +194,24 @@ const App = () => {
         </AuditorPage>
       </ProtectedRoute>} />
 
+      <Route path="/auditor/manual-upload" element={<ProtectedRoute>
+        <AuditorPage role="auditor">
+          <AuditorManualUpload />
+        </AuditorPage>
+      </ProtectedRoute>} />
+
+      <Route path="/auditor/csv-upload" element={<ProtectedRoute>
+        <AuditorPage role="auditor">
+          <AuditorCsvUpload />
+        </AuditorPage>
+      </ProtectedRoute>} />
+
+      <Route path="/auditor/pdf-upload" element={<ProtectedRoute>
+        <AuditorPage role="auditor">
+          <AuditorPdfUpload />
+        </AuditorPage>
+      </ProtectedRoute>} />
+
       {/* <Route path="/auditor/anomalies-reports" element={<ProtectedRoute>
         <AuditorPage role="auditor">
           <AnomaliesReports />
@@ -166,10 +220,10 @@ const App = () => {
 
       <Route path="/auditor/settings" element={<ProtectedRoute>
         <AdminPage role="auditor">
-          <SettingsPage/>
+          <SettingsPage />
         </AdminPage>
       </ProtectedRoute>} />
-  
+
 
       //?Protected Routes for Citizen
 
@@ -210,7 +264,7 @@ const App = () => {
 
       <Route path="/citizen/settings" element={<ProtectedRoute>
         <AdminPage role="citizen">
-          <SettingsPage/>
+          <SettingsPage />
         </AdminPage>
       </ProtectedRoute>} />
 
@@ -219,7 +273,7 @@ const App = () => {
 
       <Route path="/citizen/notify" element={<ProtectedRoute>
         <AdminPage role="citizen">
-          <Notificaiton/>
+          <Notificaiton />
         </AdminPage>
       </ProtectedRoute>} />
 

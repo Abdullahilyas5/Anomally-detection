@@ -8,7 +8,7 @@ const authSlice = createSlice({
         user: null,
         // role : "citizen",
         // role : "auditor",
-        role : "auditor",
+        role : "citizen",
         
     },
     reducers: { 
