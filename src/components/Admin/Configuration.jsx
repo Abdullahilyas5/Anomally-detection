@@ -42,7 +42,7 @@ const Configuration = () => {
       </h2>
 
       {/* Risk Thresholds */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
+      {/* <div className="bg-white rounded-lg shadow-sm p-6">
         <h3 className="text-lg font-semibold mb-4">Risk Score Thresholds</h3>
 
         <div className="grid grid-cols-3 gap-4">
@@ -76,11 +76,10 @@ const Configuration = () => {
             placeholder="High Risk"
           />
         </div>
-      </div>
+      </div> */}
 
 
-      {/* Model Training Settings */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
+      {/* <div className="bg-white rounded-lg shadow-sm p-6">
 
         <h3 className="text-lg font-semibold mb-4">
           Model Training Settings
@@ -151,9 +150,8 @@ const Configuration = () => {
           </div>
 
         </div>
-      </div>
+      </div> */}
 
-      {/* Alert Threshold */}
       <div className="bg-white rounded-lg shadow-sm p-6">
 
         <h3 className="text-lg font-semibold mb-4">Alert Threshold</h3>
