@@ -61,6 +61,7 @@ const Button = ({
   onClick,
   fullWidth = false,
   Icon , 
+  Ficon
 }) => {
   const variantClass = VARIANT_STYLES[variant];
 
@@ -75,12 +76,14 @@ const Button = ({
           text-sm font-medium
           transition-all duration-200
           flex gap-2
+          items-center justify-center
           ${className}
            my-2 
         `}
       >
         {Icon && <span className="ml-2">{Icon}</span>}
         {text}
+        {Ficon && <span className="mr-2">{Ficon}</span>}
       </button>
     </div>
   );

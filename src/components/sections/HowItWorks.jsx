@@ -49,7 +49,7 @@ const HowItWorks = () => {
           <h2 className="text-3xl md:text-4xl font-heading font-bold text-primary mb-4">
             How the System Works
           </h2>
-          <p className="text-textSecondary max-w-2xl mx-auto">
+          <p className="text-textSecondary font-serif tracking-wide max-w-2xl mx-auto">
             A complete intelligent workflow designed to ensure transparency, detect fraud,
             and improve decision-making in public procurement.
           </p>
