@@ -1,16 +1,9 @@
-import React from "react";
-import { useLocation } from "react-router-dom";
+import React from 'react'
 
 const Reports = () => {
-
-  const location = useLocation();
-  const data = location.state;
-
   return (
-    <div>
-        hello,this report is for {data}
-    </div>
-  );
-};
+    <div>Reports</div>
+  )
+}
 
-export default Reports;
+export default Reports
