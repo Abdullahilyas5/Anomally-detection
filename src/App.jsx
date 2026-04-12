@@ -17,7 +17,6 @@ import AnalyticsDashboard from "./components/Admin/AnalyticsDashboard";
 import Dashboard from "./components/Dashboard";
 import AdminUsers from "./components/Admin/AdminUsers";
 import AdminAnomalies from "./components/Admin/Anomalies";
-import Reports from "./components/Admin/Reports";
 import Configuration from "./components/Admin/Configuration";
 import AdminLogs from "./components/Admin/AdminLogs";
 // import LogoutModal from "./components/modals/LogoutModal";
@@ -35,6 +34,7 @@ import TrainModel from "./components/Admin/TrainModel";
 import ModelConfiguration from "./components/Admin/ModelConfiguration";
 import AddProcurement from "./components/Admin/AddProcurement";
 import Docs from "./components/Admin/Docs";
+import Reports from "./components/Admin/Reports"
 
 
 //? Auditor Pages (uncomment when implemented)
@@ -116,7 +116,7 @@ const App = () => {
 
       <Route path="/admin/report" element={<ProtectedRoute>
         <AdminPage role="admin">
-          <Reports />
+          <Reports/>
         </AdminPage>
       </ProtectedRoute>} />
 
