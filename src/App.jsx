@@ -2,7 +2,6 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 
 // Auth Pages
-import Homepage from "./pages/auth/Homepage";
 import LoginPage from "./pages/auth/LoginPage";
 import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
 
@@ -63,7 +62,6 @@ const App = () => {
       {/* Auth Routes */}
 
       <Route path="/" element={<LandingPage />} />
-      <Route path="/homepage" element={<Homepage />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/forgotpassword" element={<ForgotPasswordPage />} />
