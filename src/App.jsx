@@ -17,7 +17,7 @@ import AnalyticsDashboard from "./components/Admin/AnalyticsDashboard";
 import Dashboard from "./components/Dashboard";
 import AdminUsers from "./components/Admin/AdminUsers";
 import AdminAnomalies from "./components/Admin/Anomalies";
-import Reports from "./components/admin/Reports";
+import Reports from "./components/Admin/Reports";
 import Configuration from "./components/Admin/Configuration";
 import AdminLogs from "./components/Admin/AdminLogs";
 // import LogoutModal from "./components/modals/LogoutModal";
