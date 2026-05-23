@@ -3,7 +3,7 @@ import Cookies from "js-cookie";
 import toast from "react-hot-toast";
 
 const apiClient = axios.create({
-  baseURL: process.env.API_URL || "http://localhost:5000/api",
+  baseURL: process.env.API_URL || "http://localhost:9000/api",
   headers: {
     "Content-Type": "application/json",
   },
