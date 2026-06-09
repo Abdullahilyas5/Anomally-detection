@@ -1,28 +1,25 @@
 import axios from "axios";
-import Cookies from "js-cookie";
 import toast from "react-hot-toast";
+import store from "../redux/store";
 
 const apiClient = axios.create({
-  baseURL: process.env.API_URL || "http://localhost:9000/api",
-  headers: {
-    "Content-Type": "application/json",
-  },
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:9000/api",
   withCredentials: true,
 });
 
-
-// FUNCTION → Get token from cookies or localStorage
+// =======================
+// TOKEN SOURCE (FIXED)
+// =======================
 const getAccessToken = () => {
-  return Cookies.get("authToken") || localStorage.getItem("authToken");
+  return (
+    store.getState()?.auth?.accessToken ||
+    localStorage.getItem("accessToken")
+  );
 };
 
-const getRefreshToken = () => {
-  return Cookies.get("refreshToken") || localStorage.getItem("refreshToken");
-};
-
-
-
+// =======================
 // REQUEST INTERCEPTOR
+// =======================
 apiClient.interceptors.request.use(
   (config) => {
     const isAuthEndpoint =
@@ -43,15 +40,13 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-
-
+// =======================
 // RESPONSE INTERCEPTOR
+// =======================
 apiClient.interceptors.response.use(
   (response) => response,
 
-
   async (error) => {
-    console.error("API Error:", error.response || error);
     const originalRequest = error.config;
 
     const isAuthEndpoint =
@@ -67,46 +62,37 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshToken = getRefreshToken();
-
-        if (!refreshToken) {
-          throw new Error("No refresh token found");
-        }
-
-        const refreshUrl =
-          process.env.NODE_ENV === "development"
-            ? "http://localhost:5000/api/users/refresh-token"
-            : `${process.env.NEXT_PUBLIC_API_URL}/users/refresh-token`;
-
         const res = await axios.post(
-          refreshUrl,
-          { refreshToken },
+          "http://localhost:9000/api/users/refresh-token",
+          {},
           { withCredentials: true }
         );
 
         const newAccessToken = res.data.accessToken;
 
-        // Save token everywhere
-        localStorage.setItem("authToken", newAccessToken);
-        Cookies.set("authToken", newAccessToken);
+        // =======================
+        // UPDATE BOTH STORAGE LAYERS
+        // =======================
+        store.dispatch({
+          type: "auth/setAccessToken",
+          payload: newAccessToken,
+        });
 
-        // Update request header
+        localStorage.setItem("accessToken", newAccessToken);
+
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
         return apiClient(originalRequest);
+
       } catch (refreshError) {
-        console.error("Refresh token failed", refreshError);
+        console.error("Refresh failed:", refreshError);
 
-        // Clear storage
-        localStorage.removeItem("authToken");
-        localStorage.removeItem("refreshToken");
+        // CLEAN LOGOUT (NO HARD REDIRECT HERE)
+        store.dispatch({ type: "auth/logout" });
 
-        Cookies.remove("authToken");
-        Cookies.remove("refreshToken");
+        localStorage.removeItem("accessToken");
 
         toast.error("Session expired. Please login again.");
-
-        window.location.href = "/auth/sign-in";
 
         return Promise.reject(refreshError);
       }

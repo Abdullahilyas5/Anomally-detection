@@ -55,6 +55,7 @@ import Signup from "./components/sections/Signup";
 import ConfirmationRoleTable from "./components/Admin/ConfirmationRoleTable";
 import SettingsPage from "./components/Admin/SettingsPage";
 import Notificaiton from "./components/Admin/Notificaiton";
+import VerifyEmail from "./components/sections/VerifyEmail";
 
 const App = () => {
   return (
@@ -63,6 +64,7 @@ const App = () => {
 
       <Route path="/" element={<LandingPage />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/verify/email" element={<VerifyEmail/>} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/forgotpassword" element={<ForgotPasswordPage />} />
       <Route path="/logout" element={
@@ -210,11 +212,11 @@ const App = () => {
         </AuditorPage>
       </ProtectedRoute>} />
 
-      {/* <Route path="/auditor/anomalies-reports" element={<ProtectedRoute>
+      <Route path="/auditor/reports" element={<ProtectedRoute>
         <AuditorPage role="auditor">
-          <AnomaliesReports />
+          <Reports />
         </AuditorPage>
-      </ProtectedRoute>} /> */}
+      </ProtectedRoute>} />
 
       <Route path="/auditor/settings" element={<ProtectedRoute>
         <AdminPage role="auditor">

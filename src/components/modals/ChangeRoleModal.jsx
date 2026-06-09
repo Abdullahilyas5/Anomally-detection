@@ -1,64 +1,40 @@
-import React, { useState } from "react";
+'use client'
 
-const ChangeRoleModal = ({user,close,updateRole}) => {
+import {useEffect, useState} from "react";
 
-const [role,setRole] = useState(user.role)
 
-const confirmChange = ()=>{
-updateRole(user.id,role)
-close()
-}
+const ChangeRoleModal = ({ user, close, updateRole }) => {
 
-return (
+    const [role, setRole] = useState("");
 
-<div className="fixed z-50 inset-0 bg-black/40 flex items-center justify-center">
+    useEffect(() => {
+        setRole(user.role);
+    }, [user?.id]);
 
-<div className="bg-white rounded-lg p-6 w-[350px]">
+    const confirmChange = () => {
+        updateRole(user.id, role);
+        close();
+    };
 
-<h2 className="text-lg font-semibold mb-4">
-Change Role
-</h2>
+    return (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
 
-<p className="text-sm mb-3">
-User: <b>{user.name}</b>
-</p>
+            <div className="bg-white p-6 rounded w-[350px]">
 
-<select
-value={role}
-onChange={(e)=>setRole(e.target.value)}
-className="w-full border p-2 rounded mb-4"
->
+                <select value={role} onChange={(e) => setRole(e.target.value)}>
+                    <option value="Admin">Admin</option>
+                    <option value="Auditor">Auditor</option>
+                    <option value="Citizen">Citizen</option>
+                </select>
 
-<option>Admin</option>
-<option>Auditor</option>
-<option>Citizen</option>
+                <button onClick={confirmChange}>
+                    Confirm
+                </button>
 
-</select>
+            </div>
 
-<div className="flex justify-end gap-3">
+        </div>
+    );
+};
 
-<button
-onClick={close}
-className="px-4 py-2 bg-gray-200 rounded"
->
-Cancel
-</button>
-
-<button
-onClick={confirmChange}
-className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
->
-Confirm
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-)
-
-}
-
-export default ChangeRoleModal
+export default ChangeRoleModal;

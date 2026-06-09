@@ -1,247 +1,203 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { FaSearch, FaArrowLeft, FaArrowRight, FaBan } from "react-icons/fa";
+
 import ChangeRoleModal from "../modals/ChangeRoleModal";
 import BlockUserModal from "../modals/BlockUserModal";
+
+import {
+    fetchUsers,
+    updateUserRole as updateRoleApi,
+    blockUser as blockUserApi
+} from "../../apis/admin";
+
+import {
+    setUsers,
+    setSelectedUser,
+    clearSelectedUser,
+    updateUserRoleLocal as updateUserRole,
+    blockUserLocal as updateUserStatus
+} from "../../redux/features/auth/adminSlice";
 
 const USERS_PER_PAGE = 15;
 
 const AdminUsers = () => {
 
-    const [users, setUsers] = useState([{
-        id: 1,
-        name: "John Doe",
-        email: "john@gmail.com",
-        role: "Admin",
-        status: "Active"
-    },
-    {
-        id: 2,
-        name: "Jane Smith",
-        email: "jane@gmail.com",
-        role: "Auditor",
-        status: "Active"
-    },
-    ]);
+    const dispatch = useDispatch();
 
-    const [search, setSearch] = useState("")
-    const [filter, setFilter] = useState("All")
-    const [page, setPage] = useState(1)
+    const { users, selectedUser } = useSelector(state => state.admin);
 
-    const [selectedUser, setSelectedUser] = useState(null)
-    const [blockUser, setBlockUser] = useState(null)
+    const [search, setSearch] = useState("");
+    const [filter, setFilter] = useState("All");
+    const [page, setPage] = useState(1);
 
+    // ---------------- FETCH USERS ----------------
+    useEffect(() => {
+        const loadUsers = async () => {
+            const data = await fetchUsers();
 
-    // role update
-    const handleRoleUpdate = (id, newRole) => {
-        setUsers(users.map(user =>
-            user.id === id ? { ...user, role: newRole } : user
-        ))
-    }
+            const usersArray =
+                data?.users ||
+                data?.data?.users ||
+                data?.data ||
+                [];
 
-    // block confirm
-    const confirmBlock = (id) => {
-        setUsers(users.map(user =>
-            user.id === id ? { ...user, status: "Blocked" } : user
-        ))
-        setBlockUser(null)
-    }
+            const normalized = Array.isArray(usersArray)
+                ? usersArray.map(u => ({
+                    id: u.id || u._id,
+                    name: u.name,
+                    email: u.email,
+                    role: u.role,
+                    status: u.status
+                }))
+                : [];
 
+            dispatch(setUsers(normalized));
+        };
 
-    // search + filter
+        loadUsers();
+    }, [dispatch]);
+
+    // ---------------- ROLE UPDATE ----------------
+    const handleRoleUpdate = async (id, role) => {
+        try {
+            await updateRoleApi(id, role);
+
+            // update redux state
+            dispatch(updateUserRole({ id, role }));
+
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    // ---------------- BLOCK USER ----------------
+    const handleBlockUser = async (id) => {
+        try {
+            await blockUserApi(id);
+
+            dispatch(updateUserStatus({ id, status: "Blocked" }));
+
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    // ---------------- FILTER ----------------
     const filteredUsers = users.filter(user => {
 
         const matchSearch =
-            user.name.toLowerCase().includes(search.toLowerCase()) ||
-            user.email.toLowerCase().includes(search.toLowerCase())
+            user.name?.toLowerCase().includes(search.toLowerCase()) ||
+            user.email?.toLowerCase().includes(search.toLowerCase());
 
         const matchFilter =
-            filter === "All" ? true : user.status === filter
+            filter === "All" ? true : user.status === filter;
 
-        return matchSearch && matchFilter
+        return matchSearch && matchFilter;
+    });
 
-    })
+    const totalPages = Math.ceil(filteredUsers.length / USERS_PER_PAGE) || 1;
 
-
-    // pagination
-    const totalPages = Math.ceil(filteredUsers.length / USERS_PER_PAGE)
-
-    const startIndex = (page - 1) * USERS_PER_PAGE
-    const paginatedUsers = filteredUsers.slice(startIndex, startIndex + USERS_PER_PAGE)
-
-
+    const paginatedUsers = filteredUsers.slice(
+        (page - 1) * USERS_PER_PAGE,
+        page * USERS_PER_PAGE
+    );
 
     return (
+        <div className="p-6 bg-white rounded-xl">
 
-        <div className="bg-white shadow-xl rounded-xl p-6">
+            {/* SEARCH + FILTER */}
+            <div className="flex justify-between mb-4">
 
-            <div className="flex justify-between mb-5">
-
-                <div className="flex items-center border rounded-lg px-3">
-                    <FaSearch className="text-gray-400" />
-                    <input
-                        type="text"
-                        placeholder="Search users..."
-                        className="p-2 outline-none"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
-                </div>
+                <input
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Search users..."
+                    className="border p-2 rounded"
+                />
 
                 <select
-                    className="border p-2 rounded-lg"
                     value={filter}
                     onChange={(e) => setFilter(e.target.value)}
+                    className="border p-2 rounded"
                 >
-                    <option value="All">All Users</option>
+                    <option value="All">All</option>
                     <option value="Active">Active</option>
                     <option value="Blocked">Blocked</option>
                 </select>
 
             </div>
 
-
-
             {/* TABLE */}
+            <table className="w-full border">
+                <thead>
+                    <tr className="bg-gray-100">
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
 
-            <div className="border rounded-lg max-h-[450px] overflow-y-auto">
+                <tbody>
+                    {paginatedUsers.map(user => (
+                        <tr key={user.id} className="border-t">
 
-                <table className="w-full">
+                            <td>{user.name}</td>
+                            <td>{user.email}</td>
+                            <td>{user.role}</td>
+                            <td>{user.status}</td>
 
-                    <thead className="bg-gray-100 sticky top-0">
+                            <td className="flex gap-2">
 
-                        <tr className="text-left text-sm">
-                            <th className="p-3">Name</th>
-                            <th className="p-3">Email</th>
-                            <th className="p-3">Role</th>
-                            <th className="p-3">Status</th>
-                            <th className="p-3">Actions</th>
+                                <button
+                                    onClick={() => dispatch(setSelectedUser(user))}
+                                    className="bg-blue-500 text-white px-3 py-1 rounded"
+                                >
+                                    Role
+                                </button>
+
+                                <button
+                                    onClick={() => handleBlockUser(user.id)}
+                                    className="bg-red-500 text-white px-3 py-1 rounded"
+                                >
+                                    <FaBan />
+                                </button>
+
+                            </td>
+
                         </tr>
-
-                    </thead>
-
-
-                    <tbody>
-
-                        {paginatedUsers.map(user => (
-
-                            <tr key={user.id} className="border-t hover:bg-gray-50">
-
-                                <td className="p-3 font-medium">{user.name}</td>
-
-                                <td className="p-3 text-gray-500">{user.email}</td>
-
-                                <td className="p-3">
-
-                                    <span className={`px-3 py-1 rounded-full text-xs font-medium
-
-${user.role === "Admin" && "bg-red-100 text-red-600"}
-${user.role === "Auditor" && "bg-blue-100 text-blue-600"}
-${user.role === "Citizen" && "bg-green-100 text-green-600"}
-
-`}>
-                                        {user.role}
-                                    </span>
-
-                                </td>
-
-
-                                <td className="p-3">
-
-                                    <span className={`text-sm font-medium
-
-${user.status === "Active" ? "text-green-600" : "text-red-600"}
-
-`}>
-                                        {user.status}
-                                    </span>
-
-                                </td>
-
-
-                                <td className="p-3 flex gap-2">
-
-                                    <button
-                                        onClick={() => setSelectedUser(user)}
-                                        className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
-                                    >
-                                        Role
-                                    </button>
-
-                                    <button
-                                        onClick={() => setBlockUser(user)}
-                                        className="bg-red-500 text-white px-3 py-1 rounded text-sm flex items-center gap-1 hover:bg-red-600"
-                                    >
-                                        <FaBan /> Block
-                                    </button>
-
-                                </td>
-
-                            </tr>
-
-                        ))}
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-
+                    ))}
+                </tbody>
+            </table>
 
             {/* PAGINATION */}
+            <div className="flex justify-end gap-3 mt-4">
 
-            <div className="flex justify-end items-center gap-4 mt-5">
-
-                <button
-                    disabled={page === 1}
-                    onClick={() => setPage(page - 1)}
-                    className="p-2 border rounded hover:bg-gray-100"
-                >
+                <button disabled={page === 1} onClick={() => setPage(page - 1)}>
                     <FaArrowLeft />
                 </button>
 
-                <span className="text-sm font-medium">
-                    Page {page} / {totalPages || 1}
-                </span>
+                <span>{page} / {totalPages}</span>
 
-                <button
-                    disabled={page === totalPages}
-                    onClick={() => setPage(page + 1)}
-                    className="p-2 border rounded hover:bg-gray-100"
-                >
+                <button disabled={page === totalPages} onClick={() => setPage(page + 1)}>
                     <FaArrowRight />
                 </button>
 
             </div>
 
-
-
-            {/* MODALS */}
-
+            {/* MODAL */}
             {selectedUser && (
-
                 <ChangeRoleModal
                     user={selectedUser}
-                    close={() => setSelectedUser(null)}
+                    close={() => dispatch(clearSelectedUser())}
                     updateRole={handleRoleUpdate}
                 />
-
-            )}
-
-            {blockUser && (
-
-                <BlockUserModal
-                    user={blockUser}
-                    close={() => setBlockUser(null)}
-                    confirmBlock={confirmBlock}
-                />
-
             )}
 
         </div>
+    );
+};
 
-    )
-
-}
-
-export default AdminUsers
+export default AdminUsers;

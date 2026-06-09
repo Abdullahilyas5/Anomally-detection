@@ -9,15 +9,13 @@ const AdminPage = ({role , children}) => {
     const navigate = useNavigate();
 
 
-    // ⭕ implement when auth implemented 
-
-    // useEffect(()=>{
-    //     if(authState.isAuthenticated === false){
-    //         navigate('/signup');
-    //     }else if(authState.role !== 'admin'){
-    //         navigate(`/${authState.role}`);
-    //     }
-    // })
+    useEffect(() => {
+        if (authState.isAuthenticated === false) {
+            navigate('/login');
+        } else if (authState.role !== role) {
+            navigate(`/${authState.role}/dashboard`);
+        }
+    }, [authState.isAuthenticated, authState.role, role, navigate]);
    
 
   return (

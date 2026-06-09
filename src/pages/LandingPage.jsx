@@ -10,18 +10,16 @@ import AboutSection from "../components/sections/About";
 import DashImage from "../components/DashImage";
 
 const LandingPage = () => {
-  const [status, setStatus] = useState(""); // Example status, can be "pending", "approved", or "rejected"
 
   return (
     <>
-      <Ribbon status={status} onClose={() => setStatus("")} />
+      <Ribbon/>
       <Navbar />
       <Hero />
       <DashImage/>
       <Features />
       <HowItWorks/>
       <AboutSection/>
-      {/* <Signup setStatus={setStatus} /> */}
       <Footer />
     </>
   );

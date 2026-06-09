@@ -16,9 +16,9 @@ const fetchUser = async () => {
 
 const login = async (payload) => {
     try {
-        const response = await apiClient.post('/user/login',{
-            payload : payload
-        });
+        const response = await apiClient.post('/users/login',
+            payload,
+        );
         return response.data;
     } catch (error) {
         console.error('Error fetching user:', error);
@@ -28,9 +28,22 @@ const login = async (payload) => {
 
 const register = async (payload) => {
     try {
-        const response = await apiClient.post('/user/register',{
-            payload : payload
-        });
+        const response = await apiClient.post('/users/register',
+            payload,
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching user:', error);
+        return null;
+    }
+}
+
+
+const verifyEmail = async (payload) => {
+    try {
+        const response = await apiClient.post('/otp/verify',
+            payload,
+        );
         return response.data;
     } catch (error) {
         console.error('Error fetching user:', error);
@@ -48,19 +61,34 @@ const logout = async () => {
     }
 }
 
-const resetpassword = async (payload) => {
+const resendOTP = async (payload) => {
     try {
-        const response = await apiClient.post('/user/resetpassword', {
-            payload: payload
-        });
+        const response = await apiClient.post('/otp/resend', payload);
         return response.data;
     } catch (error) {
-        console.error('Error fetching user:', error);
+        console.error('Error resending OTP:', error);
         return null;
     }
 }
 
+const forgotPassword = async (payload) => {
+    try {
+        const response = await apiClient.post('/users/forgot-password', payload);
+        return response.data;
+    } catch (error) {
+        console.error('Error in forgotPassword:', error);
+        return null;
+    }
+}
 
+const resetpassword = async (payload) => {
+    try {
+        const response = await apiClient.post('/users/reset-password', payload);
+        return response.data;
+    } catch (error) {
+        console.error('Error in resetpassword:', error);
+        return null;
+    }
+}
 
-
-export {fetchUser , login , register , logout , resetpassword}
+export { fetchUser, login, register, logout, resetpassword, verifyEmail, resendOTP, forgotPassword };

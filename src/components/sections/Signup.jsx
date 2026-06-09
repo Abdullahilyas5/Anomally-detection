@@ -1,22 +1,57 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaArrowLeftLong } from "react-icons/fa6";
+import { register } from "../../apis/auth";
+import { useDispatch } from "react-redux";
+import { setStatus, setEmail, setauth } from "../../redux/features/auth/authSlice";
+import { toast } from "react-hot-toast";
+import { useSelector } from "react-redux";
 
-const Signup = ({ setStatus }) => {
-  const [role, setRole] = useState("");
-  const navigate = useNavigate(); // added navigate
+const Signup = () => {
+  const [user , setUser] = useState({
+    name : "",
+    email : "",
+    password : "",
+    role : ""
+  })
+  const dispatch = useDispatch();
+  
 
-  const handleSignup = () => {
-    if (role === "auditor") {
-      setStatus("pending");
+  const navigate = useNavigate(); 
+
+  const handleSignup = async () => {
+    try {
+      const response = await register(user);
+      if (response && response.success) {
+        dispatch(setEmail(user.email));
+        dispatch(setauth({ isAuthenticated: false, user: response.user, role: user.role, isverified: false }));        
+        if (response.setStatus === "pending") {
+          dispatch(setStatus("pending"));
+          toast.success("Verification OTP code sent to your email!");
+          navigate("/verify/email");
+        } else {
+          dispatch(setStatus("pending"));
+          navigate("/verify/email");
+        }
+      } else {
+        dispatch(setStatus("error"));
+        toast.error("Signup failed. Please try again.");
+      }
+    } catch (err) {
+      console.error(err);
+      dispatch(setStatus("error"));
+      toast.error("Error during signup.");
     }
-    // Add additional signup logic here
-    console.log("Sign Up clicked with role:", role);
   };
 
   return (
     <section className="px-6 md:px-12 py-20 bg-DashboardBack min-h-screen flex items-center justify-center">
-      <div className="relative max-w-md w-full mx-auto bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSignup();
+        }}
+      className="relative max-w-md w-full mx-auto bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
 
         {/* Back Arrow */}
         <button
@@ -34,22 +69,25 @@ const Signup = ({ setStatus }) => {
         <input 
           className="w-full mb-4 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
           placeholder="Name"
+          onChange={(e) => setUser({...user, name: e.target.value})}
         />
         <input 
           className="w-full mb-4 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
           placeholder="Email"
           type="email"
+          onChange={(e) => setUser({...user, email: e.target.value})}
         />
         <input 
           className="w-full mb-4 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
           type="password" 
           placeholder="Password"
+          onChange={(e) => setUser({...user, password: e.target.value})}
         />
 
         <select
           className="w-full mb-4 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white cursor-pointer"
-          value={role}
-          onChange={(e) => setRole(e.target.value)}
+          value={user.role}
+          onChange={(e) => setUser({...user, role: e.target.value})}
         >
           <option value="" disabled>Select Role</option>
           <option value="admin">Admin</option>
@@ -58,7 +96,7 @@ const Signup = ({ setStatus }) => {
         </select>
 
         <button
-          onClick={handleSignup}
+          type="submit"
           className="w-full bg-buttonBg text-white py-3 rounded-lg hover:bg-buttonHover transition"
         >
           Sign Up
@@ -70,7 +108,7 @@ const Signup = ({ setStatus }) => {
             Login
           </Link>
         </p>
-      </div>
+      </form>
     </section>
   );
 };

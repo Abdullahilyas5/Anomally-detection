@@ -3,7 +3,7 @@ import apiClient from "./api-client";
 
 const fetchUsers = async () => {
     try {
-        const response = await apiClient.get('/admin/users');
+        const response = await apiClient.get('/users/get-all-users');
         return response.data;
     } catch (error) {
         console.error('Error fetching users:', error);
@@ -13,7 +13,8 @@ const fetchUsers = async () => {
 
 const updateUserRole = async (userId, newRole) => {
     try {
-        const response = await apiClient.put(`/admin/users/${userId}/role`, { role: newRole });
+        console.log(`Updating user ${userId} role to ${newRole}`);
+        const response = await apiClient.put(`/users/${userId}/role`, { role: newRole });
         return response.data;
     } catch (error) {
         console.error('Error updating user role:', error);
