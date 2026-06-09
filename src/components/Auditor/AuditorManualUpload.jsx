@@ -1,172 +1,210 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaFileAlt, FaUpload } from 'react-icons/fa';
+import { createProcurement } from '../../apis/modelapi';
 
 const AuditorManualUpload = () => {
   const [formData, setFormData] = useState({
-    fy: '',
-    region: '',
     country: '',
-    practice: '',
-    category: '',
-    method: '',
-    amount: '',
-    supplier: '',
-    review: '',
+    tender_year: '',
+    bidder_id: '',
+    buyer_id: '',
+    main_cpv_2: '',
+    main_cpv_3: '',
+    bid_price: '',
+    lot_bidscount: '',
+    singleb: 0,
+    bid_isconsortium: 0,
+    bid_issubcontracted: 0,
   });
 
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Manual upload data:', formData);
-    alert("Procurement data uploaded successfully!");
+
+    try {
+      setLoading(true);
+
+      const payload = {
+        country: formData.country,
+        tender_year: Number(formData.tender_year),
+        bidder_id: formData.bidder_id,
+        buyer_id: formData.buyer_id,
+        main_cpv_2: formData.main_cpv_2,
+        main_cpv_3: formData.main_cpv_3,
+        bid_price: Number(formData.bid_price),
+        lot_bidscount: Number(formData.lot_bidscount),
+        singleb: Number(formData.singleb),
+        bid_isconsortium: Number(formData.bid_isconsortium),
+        bid_issubcontracted: Number(formData.bid_issubcontracted),
+      };
+
+      const response = await createProcurement(payload);
+      setResult(response);
+
+      alert("Prediction completed successfully!");
+    } catch (error) {
+      console.error(error);
+      alert("Prediction failed!");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const inputClass =
+    "w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition bg-white";
+
+  const labelClass = "text-sm font-medium text-gray-700 mb-1";
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="p-6 bg-background min-h-screen"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="min-h-screen bg-gray-50 p-6"
     >
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-5xl mx-auto">
+
+        {/* HEADER */}
         <div className="flex items-center gap-3 mb-6">
           <FaFileAlt className="text-3xl text-primary" />
-          <h1 className="text-3xl font-heading font-bold text-primary">Manual Procurement Upload</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
+            Procurement Risk Prediction
+          </h1>
         </div>
-        <p className="text-textSecondary mb-6">
-          Manually enter procurement data for anomaly detection analysis.
-        </p>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="bg-card rounded-lg shadow-md p-6"
+        {/* FORM CARD */}
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white shadow-lg rounded-xl p-6 md:p-8 space-y-6"
         >
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-textMain font-medium mb-2">FY (Fiscal Year)</label>
-                <input
-                  type="text"
-                  name="fy"
-                  value={formData.fy}
-                  onChange={handleChange}
-                  placeholder="e.g., 2024"
-                  className="w-full px-3 py-2 border border-borderSlate rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-textMain font-medium mb-2">Region</label>
-                <input
-                  type="text"
-                  name="region"
-                  value={formData.region}
-                  onChange={handleChange}
-                  placeholder="e.g., North America"
-                  className="w-full px-3 py-2 border border-borderSlate rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-textMain font-medium mb-2">Country</label>
-                <input
-                  type="text"
-                  name="country"
-                  value={formData.country}
-                  onChange={handleChange}
-                  placeholder="e.g., United States"
-                  className="w-full px-3 py-2 border border-borderSlate rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-textMain font-medium mb-2">Practice</label>
-                <input
-                  type="text"
-                  name="practice"
-                  value={formData.practice}
-                  onChange={handleChange}
-                  placeholder="e.g., IT Services"
-                  className="w-full px-3 py-2 border border-borderSlate rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-textMain font-medium mb-2">Category</label>
-                <input
-                  type="text"
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                  placeholder="e.g., Software"
-                  className="w-full px-3 py-2 border border-borderSlate rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-textMain font-medium mb-2">Method</label>
-                <input
-                  type="text"
-                  name="method"
-                  value={formData.method}
-                  onChange={handleChange}
-                  placeholder="e.g., RFP"
-                  className="w-full px-3 py-2 border border-borderSlate rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-textMain font-medium mb-2">Amount ($)</label>
-                <input
-                  type="number"
-                  name="amount"
-                  value={formData.amount}
-                  onChange={handleChange}
-                  placeholder="e.g., 50000"
-                  className="w-full px-3 py-2 border border-borderSlate rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-textMain font-medium mb-2">Supplier</label>
-                <input
-                  type="text"
-                  name="supplier"
-                  value={formData.supplier}
-                  onChange={handleChange}
-                  placeholder="e.g., ABC Corp"
-                  className="w-full px-3 py-2 border border-borderSlate rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                  required
-                />
-              </div>
-            </div>
+
+          {/* SECTION 1 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-textMain font-medium mb-2">Review</label>
-              <textarea
-                name="review"
-                value={formData.review}
-                onChange={handleChange}
-                rows="4"
-                placeholder="Enter review details..."
-                className="w-full px-3 py-2 border border-borderSlate rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                required
-              />
+              <div className={labelClass}>Country</div>
+              <input name="country" placeholder="e.g. ES" onChange={handleChange} className={inputClass} />
             </div>
-            <button
-              type="submit"
-              className="w-full bg-primary text-card py-3 px-4 rounded-md hover:bg-buttonHover transition-colors duration-200 font-medium flex items-center justify-center gap-2"
-            >
-              <FaUpload />
-              Upload Procurement Data
-            </button>
-          </form>
-        </motion.div>
+
+            <div>
+              <div className={labelClass}>Tender Year</div>
+              <input type="number" name="tender_year" placeholder="e.g. 2010" onChange={handleChange} className={inputClass} />
+            </div>
+
+            <div>
+              <div className={labelClass}>Bidder ID</div>
+              <input name="bidder_id" onChange={handleChange} className={inputClass} />
+            </div>
+
+            <div>
+              <div className={labelClass}>Buyer ID</div>
+              <input name="buyer_id" onChange={handleChange} className={inputClass} />
+            </div>
+          </div>
+
+          {/* SECTION 2 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <div className={labelClass}>Main CPV Level 2</div>
+              <input name="main_cpv_2" onChange={handleChange} className={inputClass} />
+            </div>
+
+            <div>
+              <div className={labelClass}>Main CPV Level 3</div>
+              <input name="main_cpv_3" onChange={handleChange} className={inputClass} />
+            </div>
+          </div>
+
+          {/* SECTION 3 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <div className={labelClass}>Bid Price</div>
+              <input type="number" name="bid_price" onChange={handleChange} className={inputClass} />
+            </div>
+
+            <div>
+              <div className={labelClass}>Lot Bid Count</div>
+              <input type="number" name="lot_bidscount" onChange={handleChange} className={inputClass} />
+            </div>
+          </div>
+
+          {/* FLAGS */}
+          <div className="bg-gray-50 border rounded-xl p-5 space-y-4">
+            <h3 className="font-semibold text-gray-800">Bid Characteristics</h3>
+
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-700">Single Bid</span>
+              <select
+                name="singleb"
+                value={formData.singleb}
+                onChange={handleChange}
+                className="border rounded-md px-2 py-1"
+              >
+                <option value={0}>No</option>
+                <option value={1}>Yes</option>
+              </select>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-700">Consortium</span>
+              <select
+                name="bid_isconsortium"
+                value={formData.bid_isconsortium}
+                onChange={handleChange}
+                className="border rounded-md px-2 py-1"
+              >
+                <option value={0}>No</option>
+                <option value={1}>Yes</option>
+              </select>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-700">Subcontracted</span>
+              <select
+                name="bid_issubcontracted"
+                value={formData.bid_issubcontracted}
+                onChange={handleChange}
+                className="border rounded-md px-2 py-1"
+              >
+                <option value={0}>No</option>
+                <option value={1}>Yes</option>
+              </select>
+            </div>
+          </div>
+
+          {/* SUBMIT */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-primary hover:bg-primary/90 text-white py-3 rounded-lg font-medium flex items-center justify-center gap-2 transition"
+          >
+            <FaUpload />
+            {loading ? "Processing..." : "Run Risk Prediction"}
+          </button>
+        </form>
+
+        {/* RESULT */}
+        {result && (
+          <div className="mt-6 bg-white shadow-md rounded-xl p-5 border-l-4 border-primary">
+            <h2 className="text-lg font-semibold mb-3">Prediction Result</h2>
+
+            <p><span className="font-medium">Bidder:</span> {result.bidder_id}</p>
+            <p><span className="font-medium">Risk Score:</span> {result.risk_score}</p>
+            <p>
+              <span className="font-medium">Risk Level:</span>{" "}
+              <span className="text-red-600 font-semibold">
+                {result.risk_level}
+              </span>
+            </p>
+          </div>
+        )}
+
       </div>
     </motion.div>
   );

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Card,
@@ -11,106 +11,106 @@ import {
   Divider,
   Collapse,
   ToggleButton,
-  ToggleButtonGroup
+  ToggleButtonGroup,
+  CircularProgress,
 } from "@mui/material";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import { getAllProcurements } from "../../apis/modelapi";
 
 const ReviewAnomalies = () => {
   const [anomalies, setAnomalies] = useState([]);
   const [activeCommentIds, setActiveCommentIds] = useState([]);
   const [savingIds, setSavingIds] = useState([]);
-  const [filter, setFilter] = useState("all"); // all / mine / others
+  const [filter, setFilter] = useState("all");
+  const [loading, setLoading] = useState(true);
 
-  // Dummy data
   useEffect(() => {
-    const dummyData = [
-      {
-        id: 1,
-        file_name: "procurement_2026_03.csv",
-        short_description: "Unusual spike in procurement amount on 2026-03-15",
-        severity: "High",
-        auditorComment: "",
-        otherAuditorComments: ["Check invoice total", "Verify vendor account"],
-        isUploader: true,
-        fileUrl: "/files/procurement_2026_03.csv",
-        detected: true,
-        flagged: null
-      },
-      {
-        id: 2,
-        file_name: "procurement_2026_02.csv",
-        short_description: "Multiple small invoices just below threshold",
-        severity: "Medium",
-        auditorComment: "",
-        otherAuditorComments: ["Possible split transactions"],
-        isUploader: false,
-        fileUrl: "/files/procurement_2026_02.csv",
-        detected: true,
-        flagged: null
-      },
-      {
-        id: 3,
-        file_name: "procurement_2026_01.csv",
-        short_description: "Supplier repeated without competitive bidding",
-        severity: "Low",
-        auditorComment: "",
-        otherAuditorComments: [],
-        isUploader: false,
-        fileUrl: "/files/procurement_2026_01.csv",
-        detected: false,
-        flagged: null
-      }
-    ];
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const data = await getAllProcurements();
 
-    setTimeout(() => setAnomalies(dummyData), 500);
+        const formatted = data.map((item) => {
+          const score = item.prediction_score;
+
+          let severity = "Low";
+          if (score >= 0.7) severity = "High";
+          else if (score >= 0.4) severity = "Medium";
+
+          return {
+            id: item.id,
+            file_name: `Procurement #${item.id}`,
+            short_description: `Country: ${item.country} | Bidder: ${item.bidder_id} | Buyer: ${item.buyer_id} | Amount: ${item.bid_price}`,
+
+            severity,
+            prediction_score: score,
+
+            auditorComment: "",
+            otherAuditorComments: [],
+
+            isUploader: item.created_by === 67,
+            fileUrl: "#",
+
+            detected: score !== null,
+            flagged: item.is_flagged,
+          };
+        });
+
+        setAnomalies(formatted);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const toggleCommentBox = (id) => {
-    setActiveCommentIds(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    setActiveCommentIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
   };
 
   const handleCommentChange = (id, comment) => {
-    setAnomalies(prev =>
-      prev.map(a => (a.id === id ? { ...a, auditorComment: comment } : a))
+    setAnomalies((prev) =>
+      prev.map((a) => (a.id === id ? { ...a, auditorComment: comment } : a))
     );
   };
 
   const saveComment = (id) => {
-    const anomaly = anomalies.find(a => a.id === id);
-    if (!anomaly) return;
-
-    setSavingIds(prev => [...prev, id]);
+    setSavingIds((prev) => [...prev, id]);
 
     setTimeout(() => {
-      alert(`Comment saved for ${anomaly.file_name}`);
-      setSavingIds(prev => prev.filter(i => i !== id));
-      setActiveCommentIds(prev => prev.filter(i => i !== id));
+      setSavingIds((prev) => prev.filter((i) => i !== id));
+      setActiveCommentIds((prev) => prev.filter((i) => i !== id));
     }, 800);
   };
 
   const openFile = (url) => window.open(url, "_blank");
 
   const flagAnomaly = (id, flagType) => {
-    setAnomalies(prev =>
-      prev.map(a => (a.id === id ? { ...a, flagged: flagType } : a))
+    setAnomalies((prev) =>
+      prev.map((a) => (a.id === id ? { ...a, flagged: flagType } : a))
     );
   };
 
-  const filteredAnomalies = anomalies.filter(a => {
+  const filteredAnomalies = anomalies.filter((a) => {
     if (filter === "mine") return a.isUploader;
     if (filter === "others") return !a.isUploader;
     return true;
   });
 
   return (
-    <Box p={4}>
-      <Typography variant="h5" fontWeight="bold" mb={3}>
-        Review Anomalies
+    <Box sx={{ p: 4, background: "#f6f7fb", minHeight: "100vh" }}>
+
+      {/* HEADER */}
+      <Typography variant="h5" fontWeight={700} mb={2}>
+        Procurement Review Dashboard
       </Typography>
 
-      {/* Filter Buttons */}
+      {/* FILTER */}
       <ToggleButtonGroup
         value={filter}
         exclusive
@@ -118,139 +118,125 @@ const ReviewAnomalies = () => {
         sx={{ mb: 3 }}
       >
         <ToggleButton value="all">All</ToggleButton>
-        <ToggleButton value="mine">Mine</ToggleButton>
+        <ToggleButton value="mine">My Records</ToggleButton>
         <ToggleButton value="others">Others</ToggleButton>
       </ToggleButtonGroup>
 
-      <Stack spacing={3}>
-        {filteredAnomalies.length === 0 && (
-          <Typography>No anomalies to show</Typography>
-        )}
-        {filteredAnomalies.map(a => {
-          const isCommentActive = activeCommentIds.includes(a.id);
-          const isSaving = savingIds.includes(a.id);
+      {/* LOADING */}
+      {loading && (
+        <Box display="flex" justifyContent="center" py={6}>
+          <CircularProgress />
+        </Box>
+      )}
 
-          // Minimal background for uploader / neutral
-          const cardBg = a.isUploader ? "rgba(25,118,210,0.05)" : "background.paper";
+      {/* EMPTY */}
+      {!loading && filteredAnomalies.length === 0 && (
+        <Typography>No records found</Typography>
+      )}
+
+      {/* CARDS */}
+      <Stack spacing={2}>
+        {filteredAnomalies.map((a) => {
+          const isOpen = activeCommentIds.includes(a.id);
+          const isSaving = savingIds.includes(a.id);
 
           return (
             <Card
               key={a.id}
-              sx={{ borderLeft: a.isUploader ? "6px solid #1976d2" : "none", bgcolor: cardBg, boxShadow: 2 }}
+              sx={{
+                borderRadius: 3,
+                boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
+                borderLeft: "6px solid",
+                borderColor:
+                  a.severity === "High"
+                    ? "error.main"
+                    : a.severity === "Medium"
+                    ? "warning.main"
+                    : "success.main",
+              }}
             >
               <CardContent>
-                <Stack spacing={1}>
-                  <Box display="flex" justifyContent="space-between" alignItems="center">
-                    <Typography variant="subtitle1"><strong>File:</strong> {a.file_name}</Typography>
-                    <Stack direction="row" spacing={1}>
-                      {/* Severity badge */}
-                      <Chip
-                        label={a.severity}
-                        color={
-                          a.severity === "High" ? "error" :
-                          a.severity === "Medium" ? "warning" :
-                          "success"
-                        }
-                        size="small"
-                      />
-                      {/* Detection badge */}
-                      <Chip
-                        label={a.detected ? "Detected" : "Not Detected"}
-                        color={a.detected ? "error" : "success"}
-                        size="small"
-                      />
-                      {/* Flag badge */}
-                      {a.flagged && (
-                        <Chip
-                          label={a.flagged === "falsePositive" ? "False Positive" : "False Negative"}
-                          color={a.flagged === "falsePositive" ? "warning" : "secondary"}
-                          size="small"
-                        />
-                      )}
-                    </Stack>
-                  </Box>
 
-                  <Typography variant="body1">{a.short_description}</Typography>
-                  <Divider sx={{ my: 1 }} />
+                {/* TOP */}
+                <Box display="flex" justifyContent="space-between" mb={1}>
+                  <Typography fontWeight={600}>
+                    {a.file_name}
+                  </Typography>
 
-                  {/* Action buttons */}
-                  <Stack direction="row" spacing={1} flexWrap="wrap">
-                    <Button
+                  <Stack direction="row" spacing={1}>
+                    <Chip label={a.severity} size="small"
+                      color={
+                        a.severity === "High"
+                          ? "error"
+                          : a.severity === "Medium"
+                          ? "warning"
+                          : "success"
+                      }
+                    />
+
+                    <Chip
+                      label={a.detected ? "Anomaly" : "Normal"}
                       size="small"
-                      variant={isCommentActive ? "contained" : "outlined"}
-                      onClick={() => toggleCommentBox(a.id)}
-                    >
-                      {isCommentActive ? "Cancel" : "Add Comment"}
-                    </Button>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      onClick={() => openFile(a.fileUrl)}
-                      endIcon={<OpenInNewIcon />}
-                    >
-                      Open File
-                    </Button>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      color="warning"
-                      onClick={() => flagAnomaly(a.id, "falsePositive")}
-                    >
-                      False Positive
-                    </Button>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      color="secondary"
-                      onClick={() => flagAnomaly(a.id, "falseNegative")}
-                    >
-                      False Negative
-                    </Button>
+                      color={a.detected ? "error" : "success"}
+                    />
+
+                    {a.flagged && (
+                      <Chip label={a.flagged} size="small" color="secondary" />
+                    )}
                   </Stack>
+                </Box>
 
-                  {/* Collapsible comment box */}
-                  <Collapse in={isCommentActive}>
-                    <Box mt={2}>
-                      <TextField
-                        label="Your Comment"
-                        variant="outlined"
-                        fullWidth
-                        multiline
-                        minRows={2}
-                        value={a.auditorComment}
-                        onChange={e => handleCommentChange(a.id, e.target.value)}
-                        disabled={isSaving}
-                      />
-                      <Box mt={1} display="flex" justifyContent="flex-end">
-                        <Button
-                          variant="contained"
-                          size="small"
-                          color="primary"
-                          onClick={() => saveComment(a.id)}
-                          disabled={isSaving}
-                        >
-                          {isSaving ? "Saving..." : "Save Comment"}
-                        </Button>
-                      </Box>
-                    </Box>
-                  </Collapse>
+                {/* DESCRIPTION */}
+                <Typography color="text.secondary" mb={2}>
+                  {a.short_description}
+                </Typography>
 
-                  {/* Other auditors' comments */}
-                  {a.otherAuditorComments.length > 0 && (
-                    <Box mt={1}>
-                      <Typography variant="subtitle2" color="text.secondary">
-                        Other Auditors' Comments:
-                      </Typography>
-                      <Stack spacing={0.5} mt={0.5}>
-                        {a.otherAuditorComments.map((c, i) => (
-                          <Card key={i} variant="outlined" sx={{ p: 1, bgcolor: "grey.100", fontSize: "0.9rem" }}>
-                            {c}
-                          </Card>
-                        ))}
-                      </Stack>
-                    </Box>
-                  )}
+                <Divider sx={{ mb: 2 }} />
+
+                {/* ACTIONS */}
+                <Stack direction="row" spacing={1} flexWrap="wrap">
+
+                  <Button size="small" onClick={() => toggleCommentBox(a.id)}>
+                    Comment
+                  </Button>
+
+                  <Button size="small" onClick={() => openFile(a.fileUrl)} endIcon={<OpenInNewIcon />}>
+                    Open
+                  </Button>
+
+                  <Button size="small" color="warning" onClick={() => flagAnomaly(a.id, "False Positive")}>
+                    FP
+                  </Button>
+
+                  <Button size="small" color="secondary" onClick={() => flagAnomaly(a.id, "False Negative")}>
+                    FN
+                  </Button>
+
                 </Stack>
+
+                {/* COMMENT */}
+                <Collapse in={isOpen}>
+                  <Box mt={2}>
+                    <TextField
+                      fullWidth
+                      multiline
+                      minRows={2}
+                      value={a.auditorComment}
+                      onChange={(e) => handleCommentChange(a.id, e.target.value)}
+                    />
+
+                    <Box mt={1} display="flex" justifyContent="flex-end">
+                      <Button
+                        variant="contained"
+                        disabled={isSaving}
+                        onClick={() => saveComment(a.id)}
+                      >
+                        {isSaving ? "Saving..." : "Save"}
+                      </Button>
+                    </Box>
+                  </Box>
+                </Collapse>
+
               </CardContent>
             </Card>
           );
