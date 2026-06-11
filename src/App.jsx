@@ -56,6 +56,7 @@ import ConfirmationRoleTable from "./components/Admin/ConfirmationRoleTable";
 import SettingsPage from "./components/Admin/SettingsPage";
 import Notificaiton from "./components/Admin/Notificaiton";
 import VerifyEmail from "./components/sections/VerifyEmail";
+import SingleProcurement from "./components/Auditor/SingleProcurement";
 
 const App = () => {
   return (
@@ -191,6 +192,12 @@ const App = () => {
       <Route path="/auditor/review-anomalies" element={<ProtectedRoute>
         <AuditorPage role="auditor">
           <ReviewAnomalies />
+        </AuditorPage>
+      </ProtectedRoute>} />
+
+      <Route path="/auditor/procurement/:id" element={<ProtectedRoute>
+        <AuditorPage role="auditor">
+          <SingleProcurement />
         </AuditorPage>
       </ProtectedRoute>} />
 

@@ -4,6 +4,8 @@ import Button from "../../components/button";
 import { motion } from "framer-motion";
 import { Link as ScrollLink } from "react-scroll";
 import { useSelector } from "react-redux";
+import Logo from "../../../public/anomaly_detect_icon.png"
+
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -38,9 +40,10 @@ const Navbar = () => {
       <h1>
         <ScrollLink
           to="/"
-          className="text-2xl font-bold bg-slate-200 font-heading text-primary px-2 py-1 rounded-md cursor-pointer"
+          className="flex items-center gap-2 text-2xl text-primary font-heading font-extrabold"
         >
-          ProcureGuard
+          <img src={Logo} alt="" srcset="" className="w-20" />
+          ProcureGuard.
         </ScrollLink>
       </h1>
 

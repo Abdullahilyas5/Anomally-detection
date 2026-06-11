@@ -48,7 +48,7 @@ const sidebarConfig = {
     { label: "Users", icon: <FaRegUser />, path: "/admin/users" },
     {
       label: "Model",
-      icon: <ModelTrainingRoundedIcon className='font-medium'/>,
+      icon: <ModelTrainingRoundedIcon className='font-medium' />,
       children: [
         { label: "Train Model", icon: <MdAnalytics className="text-base" />, path: "/admin/train" },
         { label: "Model Configuration", icon: <RiListSettingsLine className="text-base" />, path: "/admin/model-configuration" },
@@ -64,15 +64,22 @@ const sidebarConfig = {
     { label: "Dashboard", icon: <IoHomeOutline />, path: "/auditor/dashboard" },
     { label: "CSV Upload", icon: <MdOutlineRequestPage />, path: "/auditor/procurements" },
     { label: "Manual Upload", icon: <MdOutlineAdd className="text-base" />, path: "/auditor/manual-upload" },
-    // { label: "CSV Upload", icon: <FaFileCsv className="text-base" />, path: "/auditor/csv-upload" },
     { label: "PDF Upload", icon: <FaFilePdf className="text-base" />, path: "/auditor/pdf-upload" },
     { label: "Review Anomalies", icon: <MdOutlineRateReview />, path: "/auditor/review-anomalies" },
+    {
+      label: "Reports",
+      icon: <ModelTrainingRoundedIcon className='font-medium' />,
+      children: [
+        { label: "Generate Reports", icon: <MdAnalytics className="text-base" />, path: "/auditor/reports" },
+        { label: "Review Reports", icon: <RiListSettingsLine className="text-base" />, path: "/auditor/review/reports" },
+      ]
+    },
   ],
-  citizen: [
-    { label: "Dashboard", icon: <IoHomeOutline />, path: "/citizen/dashboard" },
-    { label: "Reviewed Reports", icon: <MdOutlineRateReview />, path: "/citizen/reviewed-reports" },
-    { label: "Procurement Reviews", icon: <FaFileContract />, path: "/citizen/procurement-reviews" },
-  ],
+citizen: [
+  { label: "Dashboard", icon: <IoHomeOutline />, path: "/citizen/dashboard" },
+  { label: "Reviewed Reports", icon: <MdOutlineRateReview />, path: "/citizen/reviewed-reports" },
+  { label: "Procurement Reviews", icon: <FaFileContract />, path: "/citizen/procurement-reviews" },
+],
 };
 
 const Sidebar = ({ role }) => {
@@ -86,7 +93,7 @@ const Sidebar = ({ role }) => {
 
   // Auto-expand groups when a child route is active
   useEffect(() => {
-    const activeGroup = menuItems.find(item => 
+    const activeGroup = menuItems.find(item =>
       item.children?.some(child => location.pathname === child.path)
     );
     if (activeGroup && !openGroups[activeGroup.label]) {
