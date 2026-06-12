@@ -11,57 +11,88 @@ import {
   Divider,
   LinearProgress,
   TextField,
-  Checkbox,
-  FormControlLabel,
+  Alert,
 } from "@mui/material";
-
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import FlagIcon from "@mui/icons-material/Flag";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import toast from "react-hot-toast";
 import { getAllProcurements } from "../../apis/modelapi";
+import { getFlagsByProcurement } from "../../apis/flags";
+import { getAllAnomalies, markProcurementAsAnomaly } from "../../apis/anomalies";
 
 const ReviewAnomalies = () => {
   const [anomalies, setAnomalies] = useState([]);
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true);
+  const [savingId, setSavingId] = useState(null);
 
   const navigate = useNavigate();
+  const currentUserId = useSelector((state) => state.auth?.user?.id);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-
-        const data = await getAllProcurements();
-
-        const formatted = data.map((item) => {
-          const score = item.prediction_score || 0;
-
-          let severity = "Low";
-          if (score >= 0.7) severity = "High";
-          else if (score >= 0.4) severity = "Medium";
-
-          return {
-            ...item,
-            prediction_score: score,
-            severity,
-            isUploader: item.created_by === 67,
-
-            // NEW FIELDS
-            is_flagged: item.is_flagged || false,
-            flag_description: item.flag_description || "",
-          };
-        });
-
-        setAnomalies(formatted);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
   }, []);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+
+      const [procurements, anomaliesRes] = await Promise.all([
+        getAllProcurements(),
+        getAllAnomalies(),
+      ]);
+
+      const anomalyList = anomaliesRes?.data || anomaliesRes || [];
+      const flaggedProcurementIds = new Set(
+        anomalyList.map((a) => a.procurement_id)
+      );
+
+      const flagsByProcurement = {};
+      await Promise.all(
+        procurements.map(async (item) => {
+          try {
+            const flags = await getFlagsByProcurement(item.id);
+            flagsByProcurement[item.id] = flags || [];
+          } catch {
+            flagsByProcurement[item.id] = [];
+          }
+        })
+      );
+
+      const formatted = procurements.map((item) => {
+        const score = item.prediction_score || 0;
+        let severity = "Low";
+        if (score >= 0.7) severity = "High";
+        else if (score >= 0.4) severity = "Medium";
+
+        const flags = flagsByProcurement[item.id] || [];
+        const myFlag = flags.find((f) => f.auditor_id === currentUserId);
+        const isFlagged =
+          flaggedProcurementIds.has(item.id) || flags.length > 0;
+
+        return {
+          ...item,
+          prediction_score: score,
+          severity,
+          isUploader: item.created_by === currentUserId,
+          is_flagged: isFlagged,
+          flag_description:
+            myFlag?.description || flags[0]?.description || "",
+          flag_count: flags.length,
+          has_anomaly: flaggedProcurementIds.has(item.id),
+        };
+      });
+
+      setAnomalies(formatted);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load procurements");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const updateFlag = (id, field, value) => {
     setAnomalies((prev) =>
@@ -71,9 +102,52 @@ const ReviewAnomalies = () => {
     );
   };
 
+  const handleMarkAsAnomaly = async (item) => {
+    if (!item.flag_description?.trim()) {
+      toast.error("Please add a comment before marking as anomaly");
+      return;
+    }
+
+    try {
+      setSavingId(item.id);
+
+      const flagType =
+        item.severity === "High"
+          ? "error"
+          : item.severity === "Medium"
+          ? "suspicious"
+          : "warning";
+
+      await markProcurementAsAnomaly({
+        procurementId: item.id,
+        description: item.flag_description,
+        severity: item.severity,
+        flagType,
+      });
+
+      setAnomalies((prev) =>
+        prev.map((a) =>
+          a.id === item.id
+            ? { ...a, is_flagged: true, has_anomaly: true }
+            : a
+        )
+      );
+
+      toast.success(`Procurement #${item.id} marked as anomaly`);
+    } catch (err) {
+      console.error(err);
+      toast.error(
+        err.response?.data?.error || "Failed to mark as anomaly"
+      );
+    } finally {
+      setSavingId(null);
+    }
+  };
+
   const filteredAnomalies = anomalies.filter((a) => {
     if (filter === "mine") return a.isUploader;
     if (filter === "others") return !a.isUploader;
+    if (filter === "flagged") return a.is_flagged || a.has_anomaly;
     return true;
   });
 
@@ -91,19 +165,17 @@ const ReviewAnomalies = () => {
 
   return (
     <Box sx={{ p: 4, background: "#f4f6fb", minHeight: "100vh" }}>
-      {/* HEADER */}
       <Box mb={3}>
         <Typography variant="h4" fontWeight={800}>
-          Procurement Dashboard
+          Review Anomalies
         </Typography>
         <Typography color="text.secondary">
-          Review anomalies and risk predictions
+          Review procurements, flag issues, and mark anomalies for admin review
         </Typography>
       </Box>
 
-      {/* FILTER */}
-      <Stack direction="row" spacing={1} mb={3}>
-        {["all", "mine", "others"].map((type) => (
+      <Stack direction="row" spacing={1} mb={3} flexWrap="wrap" gap={1}>
+        {["all", "mine", "others", "flagged"].map((type) => (
           <Button
             key={type}
             onClick={() => setFilter(type)}
@@ -115,14 +187,16 @@ const ReviewAnomalies = () => {
         ))}
       </Stack>
 
-      {/* LOADING */}
       {loading && (
         <Box display="flex" justifyContent="center" py={8}>
           <CircularProgress />
         </Box>
       )}
 
-      {/* CARDS */}
+      {!loading && filteredAnomalies.length === 0 && (
+        <Alert severity="info">No procurements found for this filter.</Alert>
+      )}
+
       <Stack spacing={2}>
         {filteredAnomalies.map((a) => (
           <Card
@@ -133,8 +207,7 @@ const ReviewAnomalies = () => {
             }}
           >
             <CardContent>
-              {/* HEADER */}
-              <Box display="flex" justifyContent="space-between">
+              <Box display="flex" justifyContent="space-between" flexWrap="wrap" gap={1}>
                 <Box>
                   <Typography fontWeight={700}>
                     Procurement #{a.id}
@@ -144,22 +217,22 @@ const ReviewAnomalies = () => {
                   </Typography>
                 </Box>
 
-                <Stack direction="row" spacing={1}>
+                <Stack direction="row" spacing={1} flexWrap="wrap">
                   <Chip label={a.severity} color={getSeverityColor(a.severity)} />
                   <Chip
                     label={`${(a.prediction_score * 100).toFixed(1)}%`}
                     color="primary"
                   />
-
-                  {/* NEW: FLAG STATUS */}
                   <Chip
-                    label={a.is_flagged ? "Flagged" : "Not Flagged"}
-                    color={a.is_flagged ? "error" : "default"}
+                    label={a.has_anomaly ? "Anomaly Recorded" : a.is_flagged ? "Flagged" : "Not Flagged"}
+                    color={a.has_anomaly ? "error" : a.is_flagged ? "warning" : "default"}
                   />
+                  {a.flag_count > 0 && (
+                    <Chip label={`${a.flag_count} flag(s)`} variant="outlined" />
+                  )}
                 </Stack>
               </Box>
 
-              {/* RISK BAR */}
               <Box mt={2} mb={2}>
                 <LinearProgress
                   variant="determinate"
@@ -170,52 +243,48 @@ const ReviewAnomalies = () => {
 
               <Divider sx={{ mb: 2 }} />
 
-              {/* DETAILS */}
               <Typography color="text.secondary">
                 <b>Bidder:</b> {a.bidder_id}
               </Typography>
-
               <Typography color="text.secondary">
                 <b>Buyer:</b> {a.buyer_id}
               </Typography>
-
               <Typography color="text.secondary">
                 <b>Bid Price:</b> ${Number(a.bid_price).toLocaleString()}
               </Typography>
 
-              {/* NEW: AUDITOR FLAG SECTION */}
               <Box mt={2}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={a.is_flagged}
-                      onChange={(e) =>
-                        updateFlag(a.id, "is_flagged", e.target.checked)
-                      }
-                    />
-                  }
-                  label="Mark as Anomaly"
-                />
-
                 <TextField
                   fullWidth
                   size="small"
-                  placeholder="Add auditor comment..."
+                  label="Auditor comment"
+                  placeholder="Describe why this procurement is anomalous..."
                   value={a.flag_description}
                   onChange={(e) =>
                     updateFlag(a.id, "flag_description", e.target.value)
                   }
+                  disabled={a.has_anomaly}
                 />
               </Box>
 
-              {/* ACTION */}
-              <Box mt={3} display="flex" justifyContent="flex-end">
+              <Box mt={3} display="flex" justifyContent="flex-end" gap={1} flexWrap="wrap">
                 <Button
                   variant="contained"
+                  color="error"
+                  startIcon={<FlagIcon />}
+                  disabled={a.has_anomaly || savingId === a.id}
+                  onClick={() => handleMarkAsAnomaly(a)}
+                >
+                  {savingId === a.id
+                    ? "Saving..."
+                    : a.has_anomaly
+                    ? "Already Marked"
+                    : "Mark as Anomaly"}
+                </Button>
+                <Button
+                  variant="outlined"
                   endIcon={<OpenInNewIcon />}
-                  onClick={() =>
-                    navigate(`/auditor/procurement/${a.id}`)
-                  }
+                  onClick={() => navigate(`/auditor/procurement/${a.id}`)}
                 >
                   View Details
                 </Button>

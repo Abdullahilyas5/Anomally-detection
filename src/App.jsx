@@ -225,6 +225,12 @@ const App = () => {
         </AuditorPage>
       </ProtectedRoute>} />
 
+      <Route path="/auditor/review-reports" element={<ProtectedRoute>
+        <AuditorPage role="auditor">
+          <Reports />
+        </AuditorPage>
+      </ProtectedRoute>} />
+
       <Route path="/auditor/settings" element={<ProtectedRoute>
         <AdminPage role="auditor">
           <SettingsPage />

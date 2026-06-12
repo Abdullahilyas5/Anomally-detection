@@ -56,6 +56,7 @@ const sidebarConfig = {
       ]
     },
     { label: "Anomalies", icon: <CgDanger />, path: "/admin/anomalies" },
+    { label: "Reports", icon: <TbReportSearch />, path: "/admin/report" },
     { label: "Configuration", icon: <RiListSettingsLine />, path: "/admin/configuration" },
     { label: "Logs", icon: <MdOutlineRateReview />, path: "/admin/logs" },
     { label: "Docs", icon: <MdOutlineHelp />, path: "/admin/docs" },
@@ -71,7 +72,7 @@ const sidebarConfig = {
       icon: <ModelTrainingRoundedIcon className='font-medium' />,
       children: [
         { label: "Generate Reports", icon: <MdAnalytics className="text-base" />, path: "/auditor/reports" },
-        { label: "Review Reports", icon: <RiListSettingsLine className="text-base" />, path: "/auditor/review/reports" },
+        { label: "Review Reports", icon: <RiListSettingsLine className="text-base" />, path: "/auditor/review-reports" },
       ]
     },
   ],

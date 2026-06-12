@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FaFileAlt, FaFilePdf, FaEnvelope, FaFilter, FaChartLine, FaExclamationTriangle,
@@ -17,7 +18,10 @@ import 'react-toastify/dist/ReactToastify.css';
 const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444'];
 
 const Reports = () => {
-  const [reportType, setReportType] = useState('summary'); // summary, executive, compliance, incident
+  const location = useLocation();
+  const [reportType, setReportType] = useState(
+    location.state?.anomalyId ? 'incident' : 'summary'
+  );
   const [filters, setFilters] = useState({
     days: 30,
     severity: '',
