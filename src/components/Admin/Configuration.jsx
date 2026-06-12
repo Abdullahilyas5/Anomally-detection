@@ -1,37 +1,51 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { getConfig, updateThreshold } from "../../apis/admin";
+
 
 const Configuration = () => {
+  const [alertScore, setAlertScore] = useState(0.8);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const [thresholds, setThresholds] = useState({
-    low: 40,
-    medium: 70,
-    high: 100
-  });
+  // 🔥 LOAD CONFIG ON PAGE LOAD
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        setLoading(true);
 
-  const [rules, setRules] = useState({
-    bidSpike: true,
-    singleBidder: true,
-    contractSplitting: true
-  });
+        const res = await getConfig();
 
-  const [modelSettings, setModelSettings] = useState({
-    epochs: 50,
-    detectionThreshold: 0.8,
-    learningRate: 0.001,
-    batchSize: 32
-  });
+        if (res?.data?.alertThreshold !== undefined) {
+          setAlertScore(res.data.alertThreshold);
+        }
 
-  const [alertScore, setAlertScore] = useState(80);
+      } catch (err) {
+        console.error("Failed to load config:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleSave = () => {
-    console.log({
-      thresholds,
-      rules,
-      modelSettings,
-      alertScore
-    });
+    fetchConfig();
+  }, []);
 
-    alert("Configuration Saved!");
+  // 🔥 SAVE TO BACKEND
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+
+      const res = await updateThreshold(Number(alertScore));
+
+      console.log("Updated config:", res);
+
+      alert("Configuration Saved!");
+
+    } catch (err) {
+      console.error("Save failed:", err);
+      alert("Failed to save configuration");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -41,123 +55,21 @@ const Configuration = () => {
         Detection Configuration
       </h2>
 
-      {/* Risk Thresholds */}
-      {/* <div className="bg-white rounded-lg shadow-sm p-6">
-        <h3 className="text-lg font-semibold mb-4">Risk Score Thresholds</h3>
+      {/* LOADING STATE */}
+      {loading && (
+        <p className="text-gray-500">Loading configuration...</p>
+      )}
 
-        <div className="grid grid-cols-3 gap-4">
-          <input
-            type="number"
-            value={thresholds.low}
-            onChange={(e) =>
-              setThresholds({ ...thresholds, low: e.target.value })
-            }
-            className="border p-2 rounded"
-            placeholder="Low Risk"
-          />
-
-          <input
-            type="number"
-            value={thresholds.medium}
-            onChange={(e) =>
-              setThresholds({ ...thresholds, medium: e.target.value })
-            }
-            className="border p-2 rounded"
-            placeholder="Medium Risk"
-          />
-
-          <input
-            type="number"
-            value={thresholds.high}
-            onChange={(e) =>
-              setThresholds({ ...thresholds, high: e.target.value })
-            }
-            className="border p-2 rounded"
-            placeholder="High Risk"
-          />
-        </div>
-      </div> */}
-
-
-      {/* <div className="bg-white rounded-lg shadow-sm p-6">
-
-        <h3 className="text-lg font-semibold mb-4">
-          Model Training Settings
-        </h3>
-
-        <div className="grid grid-cols-2 gap-4">
-
-          <div>
-            <label className="text-sm">Epochs</label>
-            <input
-              type="number"
-              value={modelSettings.epochs}
-              onChange={(e) =>
-                setModelSettings({
-                  ...modelSettings,
-                  epochs: e.target.value
-                })
-              }
-              className="border p-2 rounded w-full"
-            />
-          </div>
-
-          <div>
-            <label className="text-sm">Detection Threshold</label>
-            <input
-              type="number"
-              step="0.01"
-              value={modelSettings.detectionThreshold}
-              onChange={(e) =>
-                setModelSettings({
-                  ...modelSettings,
-                  detectionThreshold: e.target.value
-                })
-              }
-              className="border p-2 rounded w-full"
-            />
-          </div>
-
-          <div>
-            <label className="text-sm">Learning Rate</label>
-            <input
-              type="number"
-              step="0.0001"
-              value={modelSettings.learningRate}
-              onChange={(e) =>
-                setModelSettings({
-                  ...modelSettings,
-                  learningRate: e.target.value
-                })
-              }
-              className="border p-2 rounded w-full"
-            />
-          </div>
-
-          <div>
-            <label className="text-sm">Batch Size</label>
-            <input
-              type="number"
-              value={modelSettings.batchSize}
-              onChange={(e) =>
-                setModelSettings({
-                  ...modelSettings,
-                  batchSize: e.target.value
-                })
-              }
-              className="border p-2 rounded w-full"
-            />
-          </div>
-
-        </div>
-      </div> */}
-
+      {/* ALERT THRESHOLD */}
       <div className="bg-white rounded-lg shadow-sm p-6">
 
-        <h3 className="text-lg font-semibold mb-4">Alert Threshold</h3>
+        <h3 className="text-lg font-semibold mb-4">
+          Alert Threshold
+        </h3>
 
         <input
           type="number"
+          step="0.01"
           value={alertScore}
           onChange={(e) => setAlertScore(e.target.value)}
           className="border p-2 rounded w-32"
@@ -165,12 +77,16 @@ const Configuration = () => {
 
       </div>
 
+      {/* SAVE BUTTON */}
       <div className="flex justify-end">
         <button
           onClick={handleSave}
-          className="bg-blue-600 text-white px-6 py-2 rounded"
+          disabled={saving}
+          className={`px-6 py-2 rounded text-white ${
+            saving ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
+          }`}
         >
-          Save Configuration
+          {saving ? "Saving..." : "Save Configuration"}
         </button>
       </div>
 

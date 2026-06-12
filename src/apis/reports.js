@@ -33,16 +33,28 @@ const sendReportEmail = async (payload) => {
 // Generates correct URL for direct browser downloading of PDFs
 const getReportPdfUrl = (type, params = {}) => {
   const baseUrl = apiClient.defaults.baseURL || "http://localhost:9000/api";
-  const queryParams = new URLSearchParams({ ...params, format: 'pdf' }).toString();
+  const token = localStorage.getItem("accessToken");
+  const queryParams = new URLSearchParams({ ...params, format: 'pdf', token }).toString();
   return `${baseUrl}/reports/${type}?${queryParams}`;
+};
+
+const getPublicReports = async () => {
+  const response = await apiClient.get('/reports/public');
+  return response.data;
+};
+
+const getPublicReportDownloadUrl = (id) => {
+  const baseUrl = apiClient.defaults.baseURL || "http://localhost:9000/api";
+  const token = localStorage.getItem("accessToken");
+  return `${baseUrl}/reports/public/download/${id}?token=${token}`;
 };
 
 export {
   getSummaryReport,
-  getExecutiveReport,
-  getComplianceReport,
   getIncidentReport,
   getIncidentReportById,
   sendReportEmail,
   getReportPdfUrl,
+  getPublicReports,
+  getPublicReportDownloadUrl,
 };

@@ -27,10 +27,6 @@ import CSVViewer from "./components/Auditor/Ui/CSVViewer";
 // import AdminDashboard from "./pages/admin/Dashboard";
 // import AdminUsers from "./pages/admin/Users";
 // import AdminConfiguration from "./pages/admin/Configuration";
-
-
-import TrainModel from "./components/Admin/TrainModel";
-import ModelConfiguration from "./components/Admin/ModelConfiguration";
 import AddProcurement from "./components/Admin/AddProcurement";
 import Docs from "./components/Admin/Docs";
 import Reports from "./components/Admin/Reports"
@@ -145,21 +141,6 @@ const App = () => {
         </AdminPage>
       </ProtectedRoute>} />
 
-
-
-
-      <Route path="/admin/train" element={<ProtectedRoute>
-        <AdminPage role="admin">
-          <TrainModel />
-        </AdminPage>
-      </ProtectedRoute>} />
-
-
-      <Route path="/admin/model-configuration" element={<ProtectedRoute>
-        <AdminPage role="admin">
-          <ModelConfiguration />
-        </AdminPage>
-      </ProtectedRoute>} />
 
       <Route path="/admin/add-procurement" element={<ProtectedRoute>
         <AdminPage role="admin">

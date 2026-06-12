@@ -1,14 +1,19 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { logout as logoutAction } from '../../redux/features/auth/authSlice';
 
 const LogoutModal = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const handleLogout = () => {
         localStorage.removeItem("user");
-        localStorage.removeItem("token");
+        localStorage.removeItem("accessToken");
+        document.cookie = "accessToken=; path=/; max-age=0; SameSite=Lax;";
+        dispatch(logoutAction());
         navigate("/login");
-    }
+    };
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 p-4">

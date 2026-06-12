@@ -46,15 +46,6 @@ const sidebarConfig = {
   admin: [
     { label: "Dashboard", icon: <IoHomeOutline />, path: "/admin/dashboard" },
     { label: "Users", icon: <FaRegUser />, path: "/admin/users" },
-    {
-      label: "Model",
-      icon: <ModelTrainingRoundedIcon className='font-medium' />,
-      children: [
-        { label: "Train Model", icon: <MdAnalytics className="text-base" />, path: "/admin/train" },
-        { label: "Model Configuration", icon: <RiListSettingsLine className="text-base" />, path: "/admin/model-configuration" },
-        // { label: "Add Procurement", icon: <MdOutlineAdd className="text-base" />, path: "/admin/add-procurement" },
-      ]
-    },
     { label: "Anomalies", icon: <CgDanger />, path: "/admin/anomalies" },
     { label: "Reports", icon: <TbReportSearch />, path: "/admin/report" },
     { label: "Configuration", icon: <RiListSettingsLine />, path: "/admin/configuration" },

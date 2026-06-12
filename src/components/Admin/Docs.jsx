@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaBook, FaBrain, FaChartLine, FaCog, FaQuestionCircle } from 'react-icons/fa';
+import { FaBook, FaChartLine, FaCog, FaQuestionCircle } from 'react-icons/fa';
 
 const Docs = () => {
   const [activeSection, setActiveSection] = useState('overview');
 
   const sections = [
     { id: 'overview', label: 'Overview', icon: <FaBook /> },
-    { id: 'training', label: 'Training Parameters', icon: <FaBrain /> },
-    { id: 'detection', label: 'Detection Parameters', icon: <FaChartLine /> },
-    { id: 'configuration', label: 'Model Configuration', icon: <FaCog /> },
+    { id: 'analysis', label: 'How Analysis Works', icon: <FaChartLine /> },
     { id: 'faq', label: 'FAQ', icon: <FaQuestionCircle /> },
   ];
 
@@ -18,177 +16,108 @@ const Docs = () => {
       case 'overview':
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-primary mb-4">Model Documentation Overview</h2>
+            <h2 className="text-2xl font-bold text-primary mb-4">
+              Anomaly Detection Software Overview
+            </h2>
+
             <p className="text-textSecondary mb-4">
-              This documentation provides comprehensive guidance on configuring and using the anomaly detection model for procurement data analysis.
+              This software is designed to analyze procurement reports and automatically detect unusual patterns, inconsistencies, and potential anomalies.
             </p>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-softBlue p-4 rounded-lg">
-                <h3 className="font-semibold text-primary mb-2">What is Anomaly Detection?</h3>
+                <h3 className="font-semibold text-primary mb-2">Purpose</h3>
                 <p className="text-sm text-textSecondary">
-                  Anomaly detection identifies unusual patterns in procurement data that may indicate fraudulent activities, errors, or irregularities.
+                  Helps organizations identify suspicious or abnormal patterns in procurement data.
                 </p>
               </div>
+
               <div className="bg-softBlue p-4 rounded-lg">
-                <h3 className="font-semibold text-primary mb-2">How It Works</h3>
+                <h3 className="font-semibold text-primary mb-2">Use Case</h3>
                 <p className="text-sm text-textSecondary">
-                  The model learns normal procurement patterns and flags transactions that deviate significantly from these patterns.
+                  Used for reviewing reports, detecting irregular activities, and improving transparency.
                 </p>
               </div>
             </div>
           </div>
         );
-      case 'training':
+
+      case 'analysis':
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-primary mb-4">Training Parameters</h2>
+            <h2 className="text-2xl font-bold text-primary mb-4">
+              How Analysis Works
+            </h2>
+
             <div className="space-y-4">
               <div className="border border-borderSlate rounded-lg p-4">
-                <h3 className="font-semibold text-primary mb-2">Epochs</h3>
-                <p className="text-textSecondary mb-2">
-                  <strong>Definition:</strong> Number of complete passes through the training dataset.
-                </p>
-                <p className="text-textSecondary mb-2">
-                  <strong>Recommended Range:</strong> 50-500 epochs
-                </p>
+                <h3 className="font-semibold text-primary mb-2">
+                  Data Input
+                </h3>
                 <p className="text-textSecondary">
-                  <strong>Impact:</strong> More epochs can improve accuracy but may lead to overfitting. Use early stopping to prevent this.
+                  The system takes procurement reports as input (CSV or structured data).
                 </p>
               </div>
+
               <div className="border border-borderSlate rounded-lg p-4">
-                <h3 className="font-semibold text-primary mb-2">Learning Rate</h3>
-                <p className="text-textSecondary mb-2">
-                  <strong>Definition:</strong> Step size for updating model weights during training.
-                </p>
-                <p className="text-textSecondary mb-2">
-                  <strong>Recommended Range:</strong> 0.0001 - 0.01
-                </p>
+                <h3 className="font-semibold text-primary mb-2">
+                  Processing
+                </h3>
                 <p className="text-textSecondary">
-                  <strong>Impact:</strong> Too high may cause instability, too low may slow convergence.
+                  The software scans patterns, compares values, and identifies irregular behaviors or mismatches.
                 </p>
               </div>
+
               <div className="border border-borderSlate rounded-lg p-4">
-                <h3 className="font-semibold text-primary mb-2">Batch Size</h3>
-                <p className="text-textSecondary mb-2">
-                  <strong>Definition:</strong> Number of samples processed before updating model weights.
-                </p>
-                <p className="text-textSecondary mb-2">
-                  <strong>Recommended Range:</strong> 16-128
-                </p>
+                <h3 className="font-semibold text-primary mb-2">
+                  Output
+                </h3>
                 <p className="text-textSecondary">
-                  <strong>Impact:</strong> Larger batches provide stable gradients but require more memory.
-                </p>
-              </div>
-              <div className="border border-borderSlate rounded-lg p-4">
-                <h3 className="font-semibold text-primary mb-2">Validation Split</h3>
-                <p className="text-textSecondary mb-2">
-                  <strong>Definition:</strong> Fraction of training data used for validation.
-                </p>
-                <p className="text-textSecondary mb-2">
-                  <strong>Recommended Range:</strong> 0.1 - 0.3
-                </p>
-                <p className="text-textSecondary">
-                  <strong>Impact:</strong> Helps monitor overfitting and determine when to stop training.
+                  It generates a report highlighting suspicious entries for further review.
                 </p>
               </div>
             </div>
           </div>
         );
-      case 'detection':
-        return (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-primary mb-4">Detection Parameters</h2>
-            <div className="space-y-4">
-              <div className="border border-borderSlate rounded-lg p-4">
-                <h3 className="font-semibold text-primary mb-2">Anomaly Threshold</h3>
-                <p className="text-textSecondary mb-2">
-                  <strong>Definition:</strong> Threshold value for classifying transactions as anomalies.
-                </p>
-                <p className="text-textSecondary mb-2">
-                  <strong>Recommended Range:</strong> 0.3 - 0.8
-                </p>
-                <p className="text-textSecondary mb-2">
-                  <strong>How it works:</strong> Transactions with reconstruction error above this threshold are flagged as anomalies.
-                </p>
-                <div className="bg-softBlue p-3 rounded mt-3">
-                  <p className="text-sm text-textSecondary">
-                    <strong>Tip:</strong> Lower thresholds catch more anomalies but increase false positives. Higher thresholds are more conservative.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      case 'configuration':
-        return (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-primary mb-4">Model Configuration</h2>
-            <div className="space-y-4">
-              <div className="border border-borderSlate rounded-lg p-4">
-                <h3 className="font-semibold text-primary mb-2">Early Stopping</h3>
-                <p className="text-textSecondary mb-2">
-                  <strong>Purpose:</strong> Prevents overfitting by stopping training when validation loss stops improving.
-                </p>
-                <p className="text-textSecondary mb-2">
-                  <strong>Parameters:</strong>
-                </p>
-                <ul className="list-disc list-inside text-textSecondary ml-4 mb-2">
-                  <li><strong>Patience:</strong> Number of epochs to wait before stopping (recommended: 10-20)</li>
-                  <li><strong>Min Delta:</strong> Minimum improvement required (recommended: 0.001-0.01)</li>
-                </ul>
-              </div>
-              <div className="border border-borderSlate rounded-lg p-4">
-                <h3 className="font-semibold text-primary mb-2">Model Types</h3>
-                <div className="space-y-3">
-                  <div>
-                    <h4 className="font-medium text-primary">Autoencoder</h4>
-                    <p className="text-sm text-textSecondary">Neural network that learns to reconstruct input data. Best for complex patterns.</p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-primary">Isolation Forest</h4>
-                    <p className="text-sm text-textSecondary">Tree-based method that isolates anomalies. Good for high-dimensional data.</p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-primary">One-Class SVM</h4>
-                    <p className="text-sm text-textSecondary">Support Vector Machine for novelty detection. Effective for small datasets.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
+
       case 'faq':
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-primary mb-4">Frequently Asked Questions</h2>
+            <h2 className="text-2xl font-bold text-primary mb-4">
+              Frequently Asked Questions
+            </h2>
+
             <div className="space-y-4">
               <div className="border border-borderSlate rounded-lg p-4">
-                <h3 className="font-semibold text-primary mb-2">How do I choose the right threshold?</h3>
+                <h3 className="font-semibold text-primary mb-2">
+                  What does this software do?
+                </h3>
                 <p className="text-textSecondary">
-                  Start with 0.5 and adjust based on your tolerance for false positives vs. false negatives. Use validation data to find the optimal threshold.
+                  It analyzes procurement reports and highlights unusual or suspicious patterns.
                 </p>
               </div>
+
               <div className="border border-borderSlate rounded-lg p-4">
-                <h3 className="font-semibold text-primary mb-2">What if my model is overfitting?</h3>
+                <h3 className="font-semibold text-primary mb-2">
+                  What kind of files can I upload?
+                </h3>
                 <p className="text-textSecondary">
-                  Reduce epochs, increase validation split, enable early stopping, or use regularization techniques.
+                  Typically structured report files such as CSV or system-generated datasets.
                 </p>
               </div>
+
               <div className="border border-borderSlate rounded-lg p-4">
-                <h3 className="font-semibold text-primary mb-2">How much training data do I need?</h3>
+                <h3 className="font-semibold text-primary mb-2">
+                  Is manual review still needed?
+                </h3>
                 <p className="text-textSecondary">
-                  At least 1000 normal transactions are recommended. More diverse data leads to better anomaly detection.
-                </p>
-              </div>
-              <div className="border border-borderSlate rounded-lg p-4">
-                <h3 className="font-semibold text-primary mb-2">Can I update the model with new data?</h3>
-                <p className="text-textSecondary">
-                  Yes, you can retrain the model with new data. Consider incremental learning for large datasets.
+                  Yes, the system assists analysis but final decisions should be made by auditors or reviewers.
                 </p>
               </div>
             </div>
           </div>
         );
+
       default:
         return null;
     }
@@ -204,14 +133,19 @@ const Docs = () => {
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center gap-3 mb-6">
           <FaBook className="text-3xl text-primary" />
-          <h1 className="text-3xl font-heading font-bold text-primary">Documentation</h1>
+          <h1 className="text-3xl font-heading font-bold text-primary">
+            Documentation
+          </h1>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Sidebar */}
           <div className="lg:w-1/4">
             <div className="bg-card rounded-lg shadow-md p-4">
-              <h2 className="text-lg font-semibold text-primary mb-4">Contents</h2>
+              <h2 className="text-lg font-semibold text-primary mb-4">
+                Contents
+              </h2>
+
               <nav className="space-y-2">
                 {sections.map((section) => (
                   <button

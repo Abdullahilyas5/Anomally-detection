@@ -1,8 +1,8 @@
 import React from "react";
 
-const TopSection = ({ data }) => {
+const TopSectionAuditor = ({ data }) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
 
       <div className="bg-white rounded-xl border border-gray-100 shadow-md p-6">
         <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">
@@ -31,17 +31,10 @@ const TopSection = ({ data }) => {
         </h2>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-100 shadow-md p-6">
-        <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">
-          Pending Users
-        </p>
-        <h2 className="text-3xl font-semibold text-lightoragne mt-3">
-          {data.pendingUsers}
-        </h2>
-      </div>
+     
 
     </div>
   );
 };
 
-export default TopSection;
+export default TopSectionAuditor;

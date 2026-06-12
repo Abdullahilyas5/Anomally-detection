@@ -6,7 +6,8 @@ const compSlice = createSlice({
     initialState: {
         showMenu : false,
         showMobileMenu : false,
-        screentype : 'desktop',    
+        screentype : 'desktop', 
+        Threshold : null ,    
     },
     reducers: { 
         setMenu :  (state)=>{
@@ -17,6 +18,9 @@ const compSlice = createSlice({
         },
         setMenuMobile : (state) => {
             state.showMobileMenu = !state.showMobileMenu;
+        },
+        setThreshold : (state , payload) => {
+            state.Threshold = action.Threshold;
         }
     }
 })
