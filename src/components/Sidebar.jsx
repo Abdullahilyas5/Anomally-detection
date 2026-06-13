@@ -36,7 +36,7 @@ const sidebarConfig = {
     { label: "Dashboard", icon: <IoHomeOutline />, path: "/auditor/dashboard" },
     { label: "CSV Upload", icon: <MdOutlineRequestPage />, path: "/auditor/procurements" },
     { label: "Manual Upload", icon: <MdOutlineAdd className="text-base" />, path: "/auditor/manual-upload" },
-    { label: "PDF Upload", icon: <FaFilePdf className="text-base" />, path: "/auditor/pdf-upload" },
+    // { label: "PDF Upload", icon: <FaFilePdf className="text-base" />, path: "/auditor/pdf-upload" },
     { label: "Review Anomalies", icon: <MdOutlineRateReview />, path: "/auditor/review-anomalies" },
     { label: "Generate Reports", icon: <MdAnalytics className="text-base" />, path: "/auditor/reports" },
   ],
