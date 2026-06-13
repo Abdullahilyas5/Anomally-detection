@@ -58,14 +58,7 @@ const sidebarConfig = {
     { label: "Manual Upload", icon: <MdOutlineAdd className="text-base" />, path: "/auditor/manual-upload" },
     { label: "PDF Upload", icon: <FaFilePdf className="text-base" />, path: "/auditor/pdf-upload" },
     { label: "Review Anomalies", icon: <MdOutlineRateReview />, path: "/auditor/review-anomalies" },
-    {
-      label: "Reports",
-      icon: <ModelTrainingRoundedIcon className='font-medium' />,
-      children: [
-        { label: "Generate Reports", icon: <MdAnalytics className="text-base" />, path: "/auditor/reports" },
-        { label: "Review Reports", icon: <RiListSettingsLine className="text-base" />, path: "/auditor/review-reports" },
-      ]
-    },
+    { label: "Generate Reports", icon: <MdAnalytics className="text-base" />, path: "/auditor/reports" },
   ],
 citizen: [
   { label: "Dashboard", icon: <IoHomeOutline />, path: "/citizen/dashboard" },

@@ -16,6 +16,11 @@ export const evaluateAnomaly = async (procurementId) => {
   return response.data;
 };
 
+export const getType = async () => {
+  const response = await apiClient.get(`/anomalies/type`);
+  return response.data;
+};
+
 export const markProcurementAsAnomaly = async ({
   procurementId,
   description,

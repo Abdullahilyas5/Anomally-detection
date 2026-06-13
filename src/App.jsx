@@ -34,7 +34,6 @@ import Reports from "./components/Admin/Reports"
 
 //? Auditor Pages (uncomment when implemented)
 import AuditorDashboard from "./components/Auditor/AuditorDashboard";
-import AuditorProcurements from "./components/Auditor/AuditorProcurements";
 import ReviewAnomalies from "./components/Auditor/ReviewAnomalies";
 import AuditorManualUpload from "./components/Auditor/AuditorManualUpload";
 import AuditorCsvUpload from "./components/Auditor/AuditorCsvUpload";
@@ -166,7 +165,7 @@ const App = () => {
 
       <Route path="/auditor/procurements" element={<ProtectedRoute>
         <AuditorPage role="auditor">
-          <AuditorProcurements />
+          <AuditorCsvUpload />
         </AuditorPage>
       </ProtectedRoute>} />
 
@@ -208,7 +207,7 @@ const App = () => {
 
       <Route path="/auditor/review-reports" element={<ProtectedRoute>
         <AuditorPage role="auditor">
-          <Reports />
+          <CitizenReviewedReports />
         </AuditorPage>
       </ProtectedRoute>} />
 

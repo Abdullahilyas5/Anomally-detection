@@ -13,6 +13,17 @@ export const getAdminDashboard = async () => {
   }
 };
 
+
+export const getPublicReports = async () => {
+  try {
+    const res = await apiClient.get("/users/reviewed/report");
+    return res.data.data;
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+};
+
 /* =========================
    AUDITOR DASHBOARD
 ========================= */
