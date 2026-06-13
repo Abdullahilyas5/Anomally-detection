@@ -1,39 +1,38 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-/**
- * Auth State Shape:
- * - user:            the logged-in user object { id, name, email, role, isVerified }
- * - role:            "citizen" | "auditor" | "admin"
- * - status:          "active" | "inactive" | "blocked"  (admin-set approval status)
- * - isAuthenticated: true when accessToken is present
- * - isverified:      true when user has verified their email OTP
- * - email:           stored for OTP verification flow
- * - accessToken:     JWT access token
- */
 const authSlice = createSlice({
     name: 'auth',
     initialState: {
         user: null,
         role: 'citizen',
-        status: null,           // "active" | "inactive" | "blocked"
+        status: null,
         isAuthenticated: false,
         isverified: false,
         email: '',
         accessToken: null,
+
+        // ✅ IMPORTANT: prevents refresh loop after logout
+        isLoggedOut: false,
     },
+
     reducers: {
-        // Called after successful login - sets full auth state
+
+        // LOGIN
         login: (state, action) => {
             const { user, accessToken } = action.payload;
+
             state.user = user;
             state.role = user?.role || 'citizen';
             state.status = user?.status || null;
             state.isAuthenticated = true;
             state.isverified = user?.isVerified ?? true;
             state.accessToken = accessToken;
+
+            // reset logout flag
+            state.isLoggedOut = false;
         },
 
-        // Logout - clear all auth state
+        // LOGOUT (FIXED)
         logout: (state) => {
             state.user = null;
             state.role = 'citizen';
@@ -42,30 +41,34 @@ const authSlice = createSlice({
             state.isverified = false;
             state.email = '';
             state.accessToken = null;
+
+            // ✅ IMPORTANT
+            state.isLoggedOut = true;
         },
 
-        // Set access token only (used during token refresh)
+        // TOKEN REFRESH SAFE UPDATE
         setAccessToken: (state, action) => {
             state.accessToken = action.payload;
             state.isAuthenticated = !!action.payload;
+
+            // if we got a token again, user is NOT logged out anymore
+            if (action.payload) {
+                state.isLoggedOut = false;
+            }
         },
 
-        // Set email - used when user submits signup/login to persist for OTP flow
         setEmail: (state, action) => {
             state.email = action.payload;
         },
 
-        // Set email verification status
         setisverified: (state, action) => {
             state.isverified = action.payload;
         },
 
-        // Set user account status (active/inactive/blocked from admin approval)
         setStatus: (state, action) => {
             state.status = action.payload;
         },
 
-        // Partial state update (used for signup flow before login)
         setauth: (state, action) => {
             if (action.payload.user !== undefined) state.user = action.payload.user;
             if (action.payload.role !== undefined) state.role = action.payload.role;

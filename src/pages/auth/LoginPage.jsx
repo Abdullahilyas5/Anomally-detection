@@ -64,6 +64,7 @@ const LoginPage = () => {
 
       // SAVE TO STORAGE LAYERS
       localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("role", user.role);
       document.cookie = `accessToken=${accessToken}; path=/; max-age=604800; SameSite=Lax;`;
 
       // SAVE TO REDUX (single source of truth)

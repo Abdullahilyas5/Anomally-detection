@@ -53,7 +53,7 @@ const verifyEmail = async (payload) => {
 
 const logout = async () => {
     try {
-        const response = await apiClient.get('/user/logout');
+        const response = await apiClient.get('/users/logout');
         return response.data;
     } catch (error) {
         console.error('Error fetching user:', error);
