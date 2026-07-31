@@ -181,14 +181,8 @@ const CitizenDashboard = () => {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      report.isPublic
-                        ? "bg-softBlue text-secondary"
-                        : "bg-cleanBlue text-primary"
-                    }`}
-                  >
-                    {report.isPublic ? "Public" : "Private"}
+                  <span className="px-3 py-1 rounded-full text-xs font-medium bg-cleanBlue text-primary">
+                    Report
                   </span>
                 </div>
               </motion.div>

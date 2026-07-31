@@ -52,10 +52,19 @@ export const createPdfProcurement = async (formData) => {
 };
 
 // ================= GET ALL =================
-export const getAllProcurements = async () => {
+export const getAllProcurements = async (page, limit) => {
   try {
-    const response = await apiClient.get(`/procurement/all`);
-    return response.data;
+    const params = {};
+    if (page != null && limit != null) {
+      params.page = page;
+      params.limit = limit;
+    }
+
+    const config = Object.keys(params).length ? { params } : undefined;
+    const response = await apiClient.get(`/procurement/all`, config);
+
+    const payload = response.data;
+    return payload?.data ?? payload;
   } catch (error) {
     console.error("Fetch procurements error:", error);
     throw error;

@@ -9,6 +9,7 @@ import {
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import { getPublicReports } from "../../apis/dashboard";
+import { getPublicReportDownloadUrl } from "../../apis/reports";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -271,12 +272,22 @@ const CitizenReviewedReports = () => {
               ).toLocaleString()}
             </p>
 
-            <button
-              onClick={() => setSelectedReport(null)}
-              className="mt-4 bg-slate-200 px-4 py-2 rounded"
-            >
-              Close
-            </button>
+            <div className="mt-6 flex justify-end gap-2">
+              <a
+                href={getPublicReportDownloadUrl(selectedReport.id)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg text-sm text-center flex items-center justify-center"
+              >
+                Download PDF
+              </a>
+              <button
+                onClick={() => setSelectedReport(null)}
+                className="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold px-4 py-2 rounded-lg text-sm"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

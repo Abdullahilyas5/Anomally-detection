@@ -28,9 +28,8 @@ const Reports = () => {
   const [reportData, setReportData] = useState(null);
   const [loading, setLoading] = useState(false);
   
-  // Custom titles and public status
+  // Custom titles
   const [reportTitle, setReportTitle] = useState('');
-  const [isPublic, setIsPublic] = useState(false);
 
   // Anomalies list for selection in Incident Report
   const [anomalies, setAnomalies] = useState([]);
@@ -77,7 +76,6 @@ const Reports = () => {
       let data;
       const apiFilters = {};
       if (reportTitle) apiFilters.title = reportTitle;
-      if (isPublic) apiFilters.isPublic = isPublic;
       if (reportType === 'incident' && selectedAnomalyIds.length > 0) {
         apiFilters.anomalyIds = selectedAnomalyIds.join(',');
       }
@@ -269,16 +267,6 @@ const Reports = () => {
                   onChange={e => setReportTitle(e.target.value)}
                 />
               </div>
-
-              <label className="flex items-center gap-2.5 p-2 bg-slate-50 rounded-lg border border-slate-200 cursor-pointer select-none">
-                <input 
-                  type="checkbox"
-                  className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                  checked={isPublic}
-                  onChange={e => setIsPublic(e.target.checked)}
-                />
-                <span className="text-xs font-semibold text-slate-700">Publish to Citizens</span>
-              </label>
             </div>
           </div>
 
