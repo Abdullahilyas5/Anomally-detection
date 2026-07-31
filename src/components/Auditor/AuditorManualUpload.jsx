@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaFileAlt, FaUpload } from 'react-icons/fa';
+import toast, { Toaster } from 'react-hot-toast';
 import { createProcurement } from '../../apis/modelapi';
 
 const AuditorManualUpload = () => {
@@ -20,7 +21,6 @@ const AuditorManualUpload = () => {
 
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
-  const [errors, setErrors] = useState([]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -46,11 +46,14 @@ const AuditorManualUpload = () => {
     if (!formData.lot_bidscount || Number(formData.lot_bidscount) <= 0) validationErrors.push('Lot bid count must be greater than zero.');
 
     if (validationErrors.length > 0) {
-      setErrors(validationErrors);
+      const missingFields = validationErrors
+        .map((error) => error.replace(/ is required\.| must be a positive number\.| must be greater than zero\./, ''))
+        .join(', ');
+      toast.error(`Please complete: ${missingFields}`, {
+        duration: 4500,
+      });
       return;
     }
-
-    setErrors([]);
 
     try {
       setLoading(true);
@@ -93,6 +96,7 @@ const AuditorManualUpload = () => {
       animate={{ opacity: 1 }}
       className="min-h-screen bg-gray-50 p-6"
     >
+      <Toaster position="top-right" />
       <div className="max-w-5xl mx-auto">
         {/* HEADER */}
         <div className="flex items-center gap-3 mb-6">
@@ -107,17 +111,6 @@ const AuditorManualUpload = () => {
           onSubmit={handleSubmit}
           className="bg-white shadow-lg rounded-xl p-6 md:p-8 space-y-6"
         >
-          {errors.length > 0 && (
-            <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-           <p className="font-semibold mb-2">Please fix the following:</p>
-           <ul className="list-disc list-inside space-y-1">
-             {errors.map((error, index) => (
-               <li key={index}>{error}</li>
-             ))}
-           </ul>
-            </div>
-          )}
-
           {/* SECTION 1 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>

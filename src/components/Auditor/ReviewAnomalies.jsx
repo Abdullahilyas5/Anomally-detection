@@ -12,6 +12,7 @@ import {
   LinearProgress,
   TextField,
   Alert,
+  Pagination,
 } from "@mui/material";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import FlagIcon from "@mui/icons-material/Flag";
@@ -22,36 +23,56 @@ import { getAllProcurements } from "../../apis/modelapi";
 import { getFlagsByProcurement } from "../../apis/flags";
 import { getAllAnomalies, markProcurementAsAnomaly } from "../../apis/anomalies";
 
+const PAGE_SIZE = 10;
+const reviewPageCache = new Map();
+
 const ReviewAnomalies = () => {
   const [anomalies, setAnomalies] = useState([]);
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState(null);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const navigate = useNavigate();
   const currentUserId = useSelector((state) => state.auth?.user?.id);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [page]);
 
   const fetchData = async () => {
+    const cacheKey = `${page}:${PAGE_SIZE}`;
+    const cached = reviewPageCache.get(cacheKey);
+    if (cached) {
+      setAnomalies(cached.anomalies);
+      setTotalPages(cached.totalPages);
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
 
       const [procurements, anomaliesRes] = await Promise.all([
-        getAllProcurements(),
-        getAllAnomalies(),
+        getAllProcurements({ page, limit: PAGE_SIZE }),
+        getAllAnomalies({ page: 1, limit: 1000 }),
       ]);
 
-      const anomalyList = anomaliesRes?.data || anomaliesRes || [];
+      const procurementList = procurements?.rows || procurements?.data || procurements || [];
+      const anomalyList =
+        anomaliesRes?.data?.rows ||
+        anomaliesRes?.rows ||
+        anomaliesRes?.data ||
+        anomaliesRes ||
+        [];
       const flaggedProcurementIds = new Set(
         anomalyList.map((a) => a.procurement_id)
       );
 
       const flagsByProcurement = {};
       await Promise.all(
-        procurements.map(async (item) => {
+        procurementList.map(async (item) => {
           try {
             const flags = await getFlagsByProcurement(item.id);
             flagsByProcurement[item.id] = flags || [];
@@ -61,7 +82,7 @@ const ReviewAnomalies = () => {
         })
       );
 
-      const formatted = procurements.map((item) => {
+      const formatted = procurementList.map((item) => {
         const score = item.prediction_score || 0;
         let severity = "Low";
         if (score >= 0.7) severity = "High";
@@ -86,6 +107,9 @@ const ReviewAnomalies = () => {
       });
 
       setAnomalies(formatted);
+      const pages = procurements?.pages || 1;
+      setTotalPages(pages);
+      reviewPageCache.set(cacheKey, { anomalies: formatted, totalPages: pages });
     } catch (err) {
       console.error(err);
       toast.error("Failed to load procurements");
@@ -132,6 +156,7 @@ const ReviewAnomalies = () => {
             : a
         )
       );
+      reviewPageCache.clear();
 
       toast.success(`Procurement #${item.id} marked as anomaly`);
     } catch (err) {
@@ -178,7 +203,10 @@ const ReviewAnomalies = () => {
         {["all", "mine", "others", "flagged"].map((type) => (
           <Button
             key={type}
-            onClick={() => setFilter(type)}
+            onClick={() => {
+              setFilter(type);
+              setPage(1);
+            }}
             variant={filter === type ? "contained" : "outlined"}
             sx={{ borderRadius: 20, textTransform: "capitalize", px: 3 }}
           >
@@ -231,6 +259,7 @@ const ReviewAnomalies = () => {
                     <Chip label={`${a.flag_count} flag(s)`} variant="outlined" />
                   )}
                 </Stack>
+
               </Box>
 
               <Box mt={2} mb={2}>
@@ -293,6 +322,19 @@ const ReviewAnomalies = () => {
           </Card>
         ))}
       </Stack>
+
+      {!loading && totalPages > 1 && (
+        <Stack alignItems="center" mt={4}>
+          <Pagination
+            count={totalPages}
+            page={page}
+            onChange={(_, nextPage) => setPage(nextPage)}
+            color="primary"
+            showFirstButton
+            showLastButton
+          />
+        </Stack>
+      )}
     </Box>
   );
 };

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom';
 import { FaSearch, FaArrowLeft, FaArrowRight, FaExternalLinkAlt } from "react-icons/fa";
 import { MdCheckCircle, MdPending, MdCancel } from "react-icons/md";
 import { motion } from 'framer-motion';
@@ -192,9 +193,9 @@ const CitizenProcurementReviews = () => {
         </>
       )}
 
-      {selectedProcurement && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => setSelectedProcurement(null)}>
-          <div className="bg-card rounded-xl shadow-2xl max-w-lg w-full p-6 border border-borderSlate" onClick={(e) => e.stopPropagation()}>
+      {selectedProcurement && createPortal(
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-[1px]" onClick={() => setSelectedProcurement(null)}>
+          <div className="w-full max-w-lg rounded-xl border border-slate-200 bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
             <h2 className="text-2xl font-bold text-textMain mb-4">{selectedProcurement.name}</h2>
             <div className="space-y-3 text-sm">
               <p><b>Vendor:</b> {selectedProcurement.vendor}</p>
@@ -211,7 +212,8 @@ const CitizenProcurementReviews = () => {
               Close
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </motion.div>
   );

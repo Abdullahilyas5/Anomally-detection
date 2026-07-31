@@ -4,13 +4,17 @@ import {
   MdCheckCircle,
   MdFileDownload,
 } from "react-icons/md";
-import { FaFileContract, FaClock } from "react-icons/fa";
+import { FaFileContract, FaClock, FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { getCitizenDashboard } from "../../apis/dashboard";
+import { getPublicReportDownloadUrl } from "../../apis/reports";
+
+const REPORTS_PER_PAGE = 5;
 
 const CitizenDashboard = () => {
   const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [reportPage, setReportPage] = useState(1);
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -87,6 +91,12 @@ const CitizenDashboard = () => {
       icon: MdOutlineRateReview,
     },
   ];
+  const reports = dashboard?.reports || [];
+  const reportPages = Math.max(1, Math.ceil(reports.length / REPORTS_PER_PAGE));
+  const paginatedReports = reports.slice(
+    (reportPage - 1) * REPORTS_PER_PAGE,
+    reportPage * REPORTS_PER_PAGE
+  );
 
   return (
     <div className="space-y-6 pb-8">
@@ -159,7 +169,7 @@ const CitizenDashboard = () => {
 
         {dashboard?.reports?.length > 0 ? (
           <div className="space-y-3">
-            {dashboard.reports.map((report, index) => (
+            {paginatedReports.map((report, index) => (
               <motion.div
                 key={report.id}
                 initial={{ opacity: 0, x: -20 }}
@@ -181,15 +191,14 @@ const CitizenDashboard = () => {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      report.isPublic
-                        ? "bg-softBlue text-secondary"
-                        : "bg-cleanBlue text-primary"
-                    }`}
+                  <a
+                    href={getPublicReportDownloadUrl(report.id)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-semibold hover:bg-DarkBlue"
                   >
-                    {report.isPublic ? "Public" : "Private"}
-                  </span>
+                    <MdFileDownload /> Download
+                  </a>
                 </div>
               </motion.div>
             ))}
@@ -197,6 +206,27 @@ const CitizenDashboard = () => {
         ) : (
           <div className="text-center py-8 text-textSecondary">
             No reports available.
+          </div>
+        )}
+        {reportPages > 1 && (
+          <div className="flex items-center justify-between mt-4">
+            <button
+              onClick={() => setReportPage((page) => Math.max(1, page - 1))}
+              disabled={reportPage === 1}
+              className="p-2 border rounded-lg disabled:opacity-40"
+            >
+              <FaArrowLeft />
+            </button>
+            <span className="text-sm text-textSecondary">
+              Page {reportPage} of {reportPages}
+            </span>
+            <button
+              onClick={() => setReportPage((page) => Math.min(reportPages, page + 1))}
+              disabled={reportPage === reportPages}
+              className="p-2 border rounded-lg disabled:opacity-40"
+            >
+              <FaArrowRight />
+            </button>
           </div>
         )}
       </motion.div>

@@ -3,12 +3,13 @@ import {
   FaSearch,
   FaArrowLeft,
   FaArrowRight,
-  FaEye,
   FaFileAlt,
 } from "react-icons/fa";
+import { MdFileDownload } from "react-icons/md";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import { getPublicReports } from "../../apis/dashboard";
+import { getPublicReportDownloadUrl } from "../../apis/reports";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -19,7 +20,6 @@ const CitizenReviewedReports = () => {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
   const [page, setPage] = useState(1);
-  const [selectedReport, setSelectedReport] = useState(null);
 
   const fetchReports = async () => {
     try {
@@ -203,12 +203,15 @@ const CitizenReviewedReports = () => {
                       </td>
 
                       <td className="p-2">
-                        <button
-                          onClick={() => setSelectedReport(r)}
-                          className="text-blue-600 hover:text-blue-800"
+                        <a
+                          href={getPublicReportDownloadUrl(r.id)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 rounded-lg bg-primary px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-DarkBlue"
+                          aria-label="Download report PDF"
                         >
-                          <FaEye />
-                        </button>
+                          <MdFileDownload /> Download
+                        </a>
                       </td>
                     </tr>
                   ))}
@@ -242,44 +245,6 @@ const CitizenReviewedReports = () => {
         </>
       )}
 
-      {/* Modal */}
-      {selectedReport && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center"
-          onClick={() => setSelectedReport(null)}
-        >
-          <div
-            className="bg-white p-6 rounded-xl w-[500px]"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-xl font-bold mb-4">
-              Report Details
-            </h2>
-
-            <p>
-              <b>Title:</b> {selectedReport.title}
-            </p>
-
-            <p>
-              <b>Type:</b> {selectedReport.type}
-            </p>
-
-            <p>
-              <b>Date:</b>{" "}
-              {new Date(
-                selectedReport.createdAt
-              ).toLocaleString()}
-            </p>
-
-            <button
-              onClick={() => setSelectedReport(null)}
-              className="mt-4 bg-slate-200 px-4 py-2 rounded"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
     </motion.div>
   );
 };

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { motion } from "framer-motion";
 import {
   FaFileCsv,
   FaUpload,
@@ -9,11 +8,14 @@ import {
 import { createCsvProcurement } from "../../apis/modelapi";
 
 const AuditorCsvUpload = () => {
+  const PAGE_SIZE = 10;
   const [csvFile, setCsvFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState(null);
+  const [predictionPage, setPredictionPage] = useState(1);
+  const [savedPage, setSavedPage] = useState(1);
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
@@ -57,6 +59,8 @@ const AuditorCsvUpload = () => {
         saved: apiData?.saved || [],
         predictions: apiData?.predictions || [],
       });
+      setPredictionPage(1);
+      setSavedPage(1);
 
       setSuccess(true);
     } catch (err) {
@@ -73,13 +77,46 @@ const AuditorCsvUpload = () => {
 
   const predictions = result?.predictions || [];
   const saved = result?.saved || [];
+  const predictionPages = Math.max(1, Math.ceil(predictions.length / PAGE_SIZE));
+  const savedPages = Math.max(1, Math.ceil(saved.length / PAGE_SIZE));
+  const paginatedPredictions = predictions.slice(
+    (predictionPage - 1) * PAGE_SIZE,
+    predictionPage * PAGE_SIZE
+  );
+  const paginatedSaved = saved.slice(
+    (savedPage - 1) * PAGE_SIZE,
+    savedPage * PAGE_SIZE
+  );
+
+  const Pagination = ({ page, pages, onChange }) =>
+    pages > 1 ? (
+      <div className="flex items-center justify-center gap-3 mt-5 text-sm">
+        <button
+          type="button"
+          disabled={page === 1}
+          onClick={() => onChange(page - 1)}
+          className="px-3 py-1.5 border rounded disabled:opacity-40"
+        >
+          Previous
+        </button>
+        <span>Page {page} of {pages}</span>
+        <button
+          type="button"
+          disabled={page === pages}
+          onClick={() => onChange(page + 1)}
+          className="px-3 py-1.5 border rounded disabled:opacity-40"
+        >
+          Next
+        </button>
+      </div>
+    ) : null;
 
   return (
     <div className="max-w-5xl mx-auto">
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
-          <div className="w-12 h-12 rounded-xl bg-black text-white flex items-center justify-center">
+          <div className="w-12 h-12 rounded-xl bg-primary text-white flex items-center justify-center">
             <FaFileCsv />
           </div>
 
@@ -129,14 +166,13 @@ const AuditorCsvUpload = () => {
         )}
 
         {/* Button */}
-        <motion.button
-          whileTap={{ scale: 0.98 }}
+        <button
           onClick={handleDetectAnomalies}
           disabled={isUploading}
-          className="mt-6 w-full bg-black text-white py-4 rounded-xl font-medium hover:bg-gray-900 transition"
+          className="mt-6 w-full bg-primary text-white py-4 rounded-xl font-medium hover:bg-buttonHover transition"
         >
           {isUploading ? "Processing..." : "Detect Anomalies"}
-        </motion.button>
+        </button>
 
         {/* Debug */}
         {result && (
@@ -154,7 +190,7 @@ const AuditorCsvUpload = () => {
           </h3>
 
           <div className="grid gap-4">
-            {predictions.map((prediction, index) => (
+            {paginatedPredictions.map((prediction, index) => (
               <div
                 key={index}
                 className="border border-gray-200 rounded-xl p-4 flex justify-between items-center"
@@ -171,7 +207,7 @@ const AuditorCsvUpload = () => {
                   <p className="text-sm text-gray-500">
                     Flags:{" "}
                     {Object.entries(prediction.flags || {})
-                      .filter(([_, value]) => value)
+                      .filter(([, value]) => value)
                       .map(([key]) => key)
                       .join(", ") || "None"}
                   </p>
@@ -191,6 +227,11 @@ const AuditorCsvUpload = () => {
               </div>
             ))}
           </div>
+          <Pagination
+            page={predictionPage}
+            pages={predictionPages}
+            onChange={setPredictionPage}
+          />
         </div>
       )}
 
@@ -213,7 +254,7 @@ const AuditorCsvUpload = () => {
               </thead>
 
               <tbody>
-                {saved.map((record) => (
+                {paginatedSaved.map((record) => (
                   <tr key={record.id} className="border-b">
                     <td className="p-3">{record.bidder_id}</td>
                     <td className="p-3">{record.country}</td>
@@ -228,6 +269,11 @@ const AuditorCsvUpload = () => {
               </tbody>
             </table>
           </div>
+          <Pagination
+            page={savedPage}
+            pages={savedPages}
+            onChange={setSavedPage}
+          />
         </div>
       )}
     </div>

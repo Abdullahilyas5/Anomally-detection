@@ -17,6 +17,11 @@ import {
 
 const COLORS = ["#ff4d4f", "#faad14", "#1890ff", "#52c41a"];
 
+const formatAnomalyType = (type = "other") =>
+  String(type)
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+
 const AnalyticsGraph = ({ data }) => {
   const anomalyData = (data.anomalyTimeline || []).map(item => ({
     date: item.date,
@@ -24,7 +29,7 @@ const AnalyticsGraph = ({ data }) => {
   }));
 
   const distributionData = (data.anomalyDistribution || []).map(item => ({
-    name: item.anomaly_type,
+    name: formatAnomalyType(item.anomaly_type),
     value: item.value
   }));
 

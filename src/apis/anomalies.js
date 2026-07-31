@@ -1,8 +1,8 @@
 import apiClient from "./api-client";
 import { createFlag } from "./flags";
 
-export const getAllAnomalies = async () => {
-  const response = await apiClient.get("/anomalies");
+export const getAllAnomalies = async (params = {}) => {
+  const response = await apiClient.get("/anomalies", { params });
   return response.data;
 };
 

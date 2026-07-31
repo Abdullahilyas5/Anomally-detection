@@ -52,9 +52,9 @@ export const createPdfProcurement = async (formData) => {
 };
 
 // ================= GET ALL =================
-export const getAllProcurements = async () => {
+export const getAllProcurements = async (params = {}) => {
   try {
-    const response = await apiClient.get(`/procurement/all`);
+    const response = await apiClient.get(`/procurement/all`, { params });
     return response.data;
   } catch (error) {
     console.error("Fetch procurements error:", error);
