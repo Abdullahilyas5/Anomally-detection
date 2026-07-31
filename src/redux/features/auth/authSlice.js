@@ -42,13 +42,14 @@ const authSlice = createSlice({
         isverified: initialIsVerified,
         email: '',
         accessToken: savedToken || null,
+        refreshToken: localStorage.getItem('refreshToken') || null,
         isLoggedOut: false,
     },
 
     reducers: {
         // LOGIN
         login: (state, action) => {
-            const { user, accessToken } = action.payload;
+            const { user, accessToken, refreshToken } = action.payload;
 
             state.user = user;
             state.role = user?.role || null;
@@ -56,8 +57,14 @@ const authSlice = createSlice({
             state.isAuthenticated = true;
             state.isverified = user?.isVerified ?? true;
             state.accessToken = accessToken;
+            state.refreshToken = refreshToken || state.refreshToken || null;
 
             state.isLoggedOut = false;
+        },
+
+        // Save/Update refresh token explicitly
+        setRefreshToken: (state, action) => {
+            state.refreshToken = action.payload;
         },
 
         // LOGOUT
@@ -108,6 +115,7 @@ export const {
     login,
     logout,
     setAccessToken,
+    setRefreshToken,
     setEmail,
     setisverified,
     setStatus,

@@ -46,7 +46,7 @@ const LoginPage = () => {
         return;
       }
 
-      const { user, accessToken } = data;
+      const { user, accessToken, refreshToken } = data;
 
       if (!user.isVerified) {
         toast.error("Please verify your email first.");
@@ -64,12 +64,15 @@ const LoginPage = () => {
 
       // SAVE TO STORAGE LAYERS
       localStorage.setItem("accessToken", accessToken);
+      if (refreshToken) {
+        localStorage.setItem('refreshToken', refreshToken);
+      }
       localStorage.setItem("role", user.role);
       localStorage.setItem("user", JSON.stringify(user));
       document.cookie = `accessToken=${accessToken}; path=/; max-age=604800; SameSite=Lax;`;
 
       // SAVE TO REDUX (single source of truth)
-      dispatch(loginAction({ user, accessToken }));
+      dispatch(loginAction({ user, accessToken, refreshToken }));
 
       toast.success("Login successful!");
 

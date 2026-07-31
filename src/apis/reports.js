@@ -31,13 +31,35 @@ const sendReportEmail = async (payload) => {
 };
 
 // Generates correct URL for direct browser downloading of PDFs
-import store from "../redux/store";
 
 const getReportPdfUrl = (type, params = {}) => {
+  // Build URL according to backend endpoints:
+  // - GET /reports/summary?format=pdf
+  // - GET /reports/incident?format=pdf
+  // - GET /reports/incident/{id}?format=pdf
   const baseUrl = apiClient.defaults.baseURL || "http://localhost:9000/api";
-  const token = localStorage.getItem("accessToken") || store.getState()?.auth?.accessToken || '';
-  const queryParams = new URLSearchParams({ ...params, format: 'pdf', token }).toString();
-  return `${baseUrl}/reports/${type}?${queryParams}`;
+
+  // Determine path
+  let urlPath = '';
+  if (type === 'summary') {
+    urlPath = '/reports/summary';
+  } else if (type === 'incident') {
+    // If a single anomalyId is provided, use the single-incident route
+    if (params && params.anomalyId) {
+      urlPath = `/reports/incident/${encodeURIComponent(params.anomalyId)}`;
+    } else {
+      urlPath = '/reports/incident';
+    }
+  } else {
+    // Fallback to generic route (keeps existing behaviour for other report types)
+    urlPath = `/reports/${type}`;
+  }
+
+  // Only include format=pdf for download URLs. Do NOT append tokens or extraneous query params.
+  const qp = new URLSearchParams();
+  qp.set('format', 'pdf');
+
+  return `${baseUrl}${urlPath}?${qp.toString()}`;
 };
 
 const getPublicReports = async () => {

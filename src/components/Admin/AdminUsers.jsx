@@ -25,6 +25,7 @@ const USERS_PER_PAGE = 15;
 const AdminUsers = () => {
   const dispatch = useDispatch();
   const { users = [], selectedUser } = useSelector((s) => s.admin);
+  const currentUserId = useSelector((s) => s.auth.user?.id);
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
@@ -191,17 +192,19 @@ const AdminUsers = () => {
                     <td className="p-3 flex gap-2 flex-wrap">
 
                       {/* ROLE */}
-                      <button
-                        onClick={() => dispatch(setSelectedUser(u))}
-                        className="px-3 py-1.5 rounded-lg text-sm font-medium
-                                   bg-blue-50 text-blue-700 border border-blue-200
-                                   hover:bg-blue-100 transition"
-                      >
-                        Role
-                      </button>
+                      {u.id !== currentUserId && (
+                        <button
+                          onClick={() => dispatch(setSelectedUser(u))}
+                          className="px-3 py-1.5 rounded-lg text-sm font-medium
+                                     bg-blue-50 text-blue-700 border border-blue-200
+                                     hover:bg-blue-100 transition"
+                        >
+                          Role
+                        </button>
+                      )}
 
                       {/* ACTIVE */}
-                      {u.status === "active" && (
+                      {u.status === "active" && u.id !== currentUserId && (
                         <>
                           <button
                             onClick={() => changeStatus(u.id, "inactive")}
@@ -224,7 +227,7 @@ const AdminUsers = () => {
                       )}
 
                       {/* INACTIVE */}
-                      {u.status === "inactive" && (
+                      {u.status === "inactive" && u.id !== currentUserId && (
                         <>
                           <button
                             onClick={() => changeStatus(u.id, "active")}
@@ -247,7 +250,7 @@ const AdminUsers = () => {
                       )}
 
                       {/* BLOCKED */}
-                      {u.status === "blocked" && (
+                      {u.status === "blocked" && u.id !== currentUserId && (
                         <>
                           <button
                             onClick={() => changeStatus(u.id, "active")}

@@ -16,18 +16,14 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444'];
+const Motion = motion;
 
 const Reports = () => {
   const location = useLocation();
   const [reportType, setReportType] = useState(
     location.state?.anomalyId ? 'incident' : 'summary'
   );
-  const [filters, setFilters] = useState({
-    days: 30,
-    severity: '',
-    status: '',
-    limit: 10
-  });
+  const [filters] = useState({});
 
   const [reportData, setReportData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -79,17 +75,12 @@ const Reports = () => {
     setLoading(true);
     try {
       let data;
-      const apiFilters = {
-        days: filters.days,
-        severity: filters.severity || undefined,
-        status: filters.status || undefined,
-        limit: filters.limit,
-        title: reportTitle || undefined,
-        isPublic: isPublic,
-        anomalyIds: reportType === 'incident' && selectedAnomalyIds.length > 0 
-          ? selectedAnomalyIds.join(',') 
-          : undefined
-      };
+      const apiFilters = {};
+      if (reportTitle) apiFilters.title = reportTitle;
+      if (isPublic) apiFilters.isPublic = isPublic;
+      if (reportType === 'incident' && selectedAnomalyIds.length > 0) {
+        apiFilters.anomalyIds = selectedAnomalyIds.join(',');
+      }
 
       if (reportType === 'summary') {
         data = await getSummaryReport(apiFilters);
@@ -115,18 +106,13 @@ const Reports = () => {
   }, [reportType, filters, selectedAnomalyIds, isPublic, reportTitle]);
 
   const handleDownloadPdf = () => {
-    const apiFilters = {
-      days: filters.days,
-      severity: filters.severity || undefined,
-      status: filters.status || undefined,
-      limit: filters.limit,
-      title: reportTitle || undefined,
-      isPublic: isPublic,
-      anomalyIds: reportType === 'incident' && selectedAnomalyIds.length > 0 
-        ? selectedAnomalyIds.join(',') 
-        : undefined
-    };
-    const downloadUrl = getReportPdfUrl(reportType, apiFilters);
+    // Build the download URL according to backend routes.
+    // If exactly one anomaly is selected, use the single-incident endpoint.
+    const anomalyId = reportType === 'incident' && selectedAnomalyIds.length === 1
+      ? selectedAnomalyIds[0]
+      : undefined;
+
+    const downloadUrl = getReportPdfUrl(reportType, { anomalyId });
     window.open(downloadUrl, '_blank');
     toast.info('Initiating PDF download...');
   };
@@ -139,23 +125,11 @@ const Reports = () => {
     }
     setSendingEmail(true);
     try {
-      const apiFilters = {
-        days: filters.days,
-        severity: filters.severity || undefined,
-        status: filters.status || undefined,
-        limit: filters.limit,
-        title: reportTitle || undefined,
-        isPublic: isPublic,
-        anomalyIds: reportType === 'incident' && selectedAnomalyIds.length > 0 
-          ? selectedAnomalyIds.join(',') 
-          : undefined
-      };
       const payload = {
         type: reportType,
         to: emailForm.to,
         subject: emailForm.subject || undefined,
         message: emailForm.message || undefined,
-        filters: apiFilters
       };
       const res = await sendReportEmail(payload);
       if (res && res.success) {
@@ -309,72 +283,6 @@ const Reports = () => {
           </div>
 
           <hr className="border-slate-100" />
-
-          {/* Filtering Parameters */}
-          <div>
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-              <FaFilter /> Filters
-            </h3>
-            <div className="flex flex-col gap-4">
-              
-              <div>
-                <label className="text-xs font-medium text-slate-500 mb-1.5 block">Time Period (Days)</label>
-                <select 
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                  value={filters.days}
-                  onChange={e => setFilters(prev => ({ ...prev, days: Number(e.target.value) }))}
-                >
-                  <option value={7}>Last 7 Days</option>
-                  <option value={30}>Last 30 Days</option>
-                  <option value={90}>Last 90 Days</option>
-                  <option value={365}>Last Year</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="text-xs font-medium text-slate-500 mb-1.5 block">Severity</label>
-                <select 
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                  value={filters.severity}
-                  onChange={e => setFilters(prev => ({ ...prev, severity: e.target.value }))}
-                >
-                  <option value="">All Severities</option>
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                  <option value="critical">Critical</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="text-xs font-medium text-slate-500 mb-1.5 block">Status</label>
-                <select 
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                  value={filters.status}
-                  onChange={e => setFilters(prev => ({ ...prev, status: e.target.value }))}
-                >
-                  <option value="">All Statuses</option>
-                  <option value="open">Open</option>
-                  <option value="investigating">Investigating</option>
-                  <option value="resolved">Resolved</option>
-                  <option value="closed">Closed</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="text-xs font-medium text-slate-500 mb-1.5 block">Row Limit</label>
-                <input 
-                  type="number"
-                  min={1}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                  value={filters.limit}
-                  onChange={e => setFilters(prev => ({ ...prev, limit: Number(e.target.value) }))}
-                />
-              </div>
-
-            </div>
-          </div>
-
         </div>
 
         {/* Report Content View */}
@@ -473,37 +381,29 @@ const Reports = () => {
               <p className="text-sm font-medium">Assembling report payload from database...</p>
             </div>
           ) : reportData ? (
-            <motion.div 
+            <Motion.div 
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
               className="flex flex-col gap-6"
             >
+              {/* Report Meta */}
+              <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
+                <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+                  <div>
+                    <div className="text-sm font-semibold text-slate-700">{reportData.meta?.title || (reportType === 'summary' ? 'Summary Report' : 'Incident Report')}</div>
+                    <div className="text-xs text-slate-400">Generated: {reportData.meta?.generatedAtLabel || ''} • Period: {reportData.meta?.periodLabel || 'All records'}</div>
+                  </div>
+                  <div className="text-xs text-slate-500">Requested by: {reportData.meta?.requestedBy?.name || reportData.meta?.requestedBy?.email || 'System'}</div>
+                </div>
+              </div>
+
               {/* KPIs Header Cards */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
                   <div className="text-xs font-semibold text-slate-400">Total Anomalies</div>
                   <div className="text-2xl font-bold text-slate-800 mt-1">
                     {reportData.kpis?.totalAnomalies ?? 0}
-                  </div>
-                </div>
-
-                <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
-                  <div className="text-xs font-semibold text-slate-400">Resolution Rate</div>
-                  <div className="text-2xl font-bold text-emerald-600 mt-1">
-                    {Math.round(reportData.kpis?.resolutionRate ?? 100)}%
-                  </div>
-                </div>
-
-                <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
-                  <div className="text-xs font-semibold text-slate-400">Overall Risk Score</div>
-                  <div className={`text-2xl font-bold mt-1 ${
-                    (reportData.kpis?.riskScore ?? 0) >= 70 ? 'text-red-600' :
-                    (reportData.kpis?.riskScore ?? 0) >= 35 ? 'text-amber-500' :
-                    'text-blue-500'
-                  }`}>
-                    {reportData.kpis?.riskScore ?? 0} / 100
                   </div>
                 </div>
 
@@ -517,7 +417,6 @@ const Reports = () => {
                     {reportData.kpis?.businessImpact ?? 'Low'}
                   </div>
                 </div>
-
               </div>
 
               {/* Data Visualization Charts */}
@@ -616,7 +515,7 @@ const Reports = () => {
                 <div className="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                   <h3 className="font-bold text-sm text-slate-600">Detected Anomalies</h3>
                   <span className="text-xs text-slate-400 font-medium">
-                    Showing max {filters.limit} entries
+                    Showing {reportData.anomalies?.length ?? 0} anomalies
                   </span>
                 </div>
                 <div className="overflow-x-auto">
@@ -657,7 +556,7 @@ const Reports = () => {
                 </div>
               </div>
 
-            </motion.div>
+            </Motion.div>
           ) : (
             <div className="bg-white border rounded-2xl p-16 flex flex-col items-center justify-center text-slate-400 min-h-[400px]">
               <FaTimesCircle className="text-4xl text-slate-300" />
@@ -673,7 +572,7 @@ const Reports = () => {
       <AnimatePresence>
         {emailModalOpen && (
           <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <motion.div
+            <Motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
@@ -740,7 +639,7 @@ const Reports = () => {
                   )}
                 </button>
               </form>
-            </motion.div>
+            </Motion.div>
           </div>
         )}
       </AnimatePresence>
