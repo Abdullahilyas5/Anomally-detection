@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
-import { setAccessToken, login } from "./redux/features/auth/authSlice";
+import { setAccessToken, login, setauth } from "./redux/features/auth/authSlice";
 
 // Auth Pages
 import LoginPage from "./pages/auth/LoginPage";
@@ -65,6 +65,7 @@ const App = () => {
   const navigate = useNavigate();
 
   const { role, accessToken } = useSelector((state) => state.auth);
+  const [authLoaded, setAuthLoaded] = React.useState(false);
 
   // -------------------------
   // RESTORE AUTH ON REFRESH
@@ -72,6 +73,7 @@ const App = () => {
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     const user = localStorage.getItem("user");
+    const storedRole = localStorage.getItem("role");
 
     if (token) {
       dispatch(setAccessToken(token));
@@ -91,7 +93,12 @@ const App = () => {
         console.error("Invalid user in storage");
         localStorage.removeItem("user");
       }
+    } else if (token && storedRole) {
+      dispatch(setauth({ role: storedRole, isAuthenticated: true }));
     }
+
+    // Mark rehydration complete so routes/ProtectedRoute stop racing
+    setAuthLoaded(true);
   }, [dispatch]);
 
   // -------------------------
@@ -112,6 +119,12 @@ const App = () => {
       navigate(home, { replace: true });
     }
   }, [role, accessToken, location.pathname, navigate]);
+
+  if (!authLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">Loading...</div>
+    );
+  }
 
   return (
     <Routes>

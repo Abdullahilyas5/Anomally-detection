@@ -1,4 +1,4 @@
-import axios from "axios";
+﻿import axios from "axios";
 import toast from "react-hot-toast";
 import store from "../redux/store";
 
@@ -22,15 +22,17 @@ const getAccessToken = () => {
 // =======================
 apiClient.interceptors.request.use(
   (config) => {
+    const url = config?.url || "";
     const isAuthEndpoint =
-      config.url.includes("/login") ||
-      config.url.includes("/signup") ||
-      config.url.includes("/refresh-token");
+      url.includes("/login") ||
+      url.includes("/signup") ||
+      url.includes("/refresh-token");
 
     if (!isAuthEndpoint) {
       const token = getAccessToken();
 
       if (token) {
+        config.headers = config.headers || {};
         config.headers.Authorization = `Bearer ${token}`;
       }
     }
@@ -47,26 +49,25 @@ apiClient.interceptors.response.use(
   (response) => response,
 
   async (error) => {
-    const originalRequest = error.config;
+    const originalRequest = error?.config;
+    const url = originalRequest?.url || "";
 
     const isAuthEndpoint =
-      originalRequest?.url.includes("/login") ||
-      originalRequest?.url.includes("/signup") ||
-      originalRequest?.url.includes("/refresh-token");
+      url.includes("/login") ||
+      url.includes("/signup") ||
+      url.includes("/refresh-token");
 
     if (
       error.response?.status === 401 &&
+      originalRequest &&
       !originalRequest._retry &&
       !isAuthEndpoint
     ) {
       originalRequest._retry = true;
 
       try {
-        const res = await axios.post(
-          "http://localhost:9000/api/users/refresh-token",
-          {},
-          { withCredentials: true }
-        );
+        const refreshUrl = `${apiClient.defaults.baseURL}/users/refresh-token`;
+        const res = await axios.post(refreshUrl, {}, { withCredentials: true });
 
         const newAccessToken = res.data.accessToken;
 
@@ -80,6 +81,8 @@ apiClient.interceptors.response.use(
 
         localStorage.setItem("accessToken", newAccessToken);
 
+        // Update header for the original request and retry
+        originalRequest.headers = originalRequest.headers || {};
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
         return apiClient(originalRequest);

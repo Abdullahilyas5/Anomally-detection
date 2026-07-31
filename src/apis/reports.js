@@ -31,9 +31,11 @@ const sendReportEmail = async (payload) => {
 };
 
 // Generates correct URL for direct browser downloading of PDFs
+import store from "../redux/store";
+
 const getReportPdfUrl = (type, params = {}) => {
   const baseUrl = apiClient.defaults.baseURL || "http://localhost:9000/api";
-  const token = localStorage.getItem("accessToken");
+  const token = localStorage.getItem("accessToken") || store.getState()?.auth?.accessToken || '';
   const queryParams = new URLSearchParams({ ...params, format: 'pdf', token }).toString();
   return `${baseUrl}/reports/${type}?${queryParams}`;
 };
