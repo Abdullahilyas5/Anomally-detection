@@ -101,7 +101,7 @@ const Reports = () => {
 
   useEffect(() => {
     loadReport();
-  }, [reportType, filters, selectedAnomalyIds, isPublic, reportTitle]);
+  }, [reportType, filters, selectedAnomalyIds, reportTitle]);
 
   const handleDownloadPdf = () => {
     // Build the download URL according to backend routes.

@@ -191,7 +191,6 @@ const CitizenDashboard = () => {
                 </div>
 
                 <div className="flex items-center gap-3">
-<<<<<<< HEAD
                   <a
                     href={getPublicReportDownloadUrl(report.id)}
                     target="_blank"
@@ -200,11 +199,6 @@ const CitizenDashboard = () => {
                   >
                     <MdFileDownload /> Download
                   </a>
-=======
-                  <span className="px-3 py-1 rounded-full text-xs font-medium bg-cleanBlue text-primary">
-                    Report
-                  </span>
->>>>>>> 982b56cfe7aed232c9dec49aa5a247d13994ca32
                 </div>
               </motion.div>
             ))}

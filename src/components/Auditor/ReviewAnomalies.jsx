@@ -12,7 +12,6 @@ import {
   LinearProgress,
   TextField,
   Alert,
-  Pagination,
 } from "@mui/material";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import FlagIcon from "@mui/icons-material/Flag";
@@ -22,14 +21,9 @@ import toast from "react-hot-toast";
 import { getAllProcurements } from "../../apis/modelapi";
 import { getAllAnomalies, markProcurementAsAnomaly } from "../../apis/anomalies";
 
-<<<<<<< HEAD
-const PAGE_SIZE = 10;
-const reviewPageCache = new Map();
-=======
 const ITEMS_PER_PAGE = 10;
-const CACHE_KEY = "auditorReviewProcurementsCache";
-const ANOMALIES_CACHE_KEY = "auditorReviewAnomaliesCache";
->>>>>>> 982b56cfe7aed232c9dec49aa5a247d13994ca32
+const CACHE_KEY = "auditorReviewProcurementsCache:v2";
+const ANOMALIES_CACHE_KEY = "auditorReviewAnomaliesCache:v2";
 
 const ReviewAnomalies = () => {
   const [procurements, setProcurements] = useState([]);
@@ -38,32 +32,10 @@ const ReviewAnomalies = () => {
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState(null);
   const [page, setPage] = useState(1);
-<<<<<<< HEAD
-  const [totalPages, setTotalPages] = useState(1);
-
-  const navigate = useNavigate();
-  const currentUserId = useSelector((state) => state.auth?.user?.id);
-
-  useEffect(() => {
-    fetchData();
-  }, [page]);
-
-  const fetchData = async () => {
-    const cacheKey = `${page}:${PAGE_SIZE}`;
-    const cached = reviewPageCache.get(cacheKey);
-    if (cached) {
-      setAnomalies(cached.anomalies);
-      setTotalPages(cached.totalPages);
-      setLoading(false);
-      return;
-    }
-
-=======
   const [pages, setPages] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [cache, setCache] = useState(() => {
->>>>>>> 982b56cfe7aed232c9dec49aa5a247d13994ca32
-    try {
+const [total, setTotal] = useState(0);
+const [cache, setCache] = useState(() => {
+  try {
       return JSON.parse(sessionStorage.getItem(CACHE_KEY)) || {};
     } catch {
       return {};
@@ -77,73 +49,14 @@ const ReviewAnomalies = () => {
     }
   });
 
-<<<<<<< HEAD
-      const [procurements, anomaliesRes] = await Promise.all([
-        getAllProcurements({ page, limit: PAGE_SIZE }),
-        getAllAnomalies({ page: 1, limit: 1000 }),
-      ]);
-
-      const procurementList = procurements?.rows || procurements?.data || procurements || [];
-      const anomalyList =
-        anomaliesRes?.data?.rows ||
-        anomaliesRes?.rows ||
-        anomaliesRes?.data ||
-        anomaliesRes ||
-        [];
-      const flaggedProcurementIds = new Set(
-        anomalyList.map((a) => a.procurement_id)
-      );
-
-      const flagsByProcurement = {};
-      await Promise.all(
-        procurementList.map(async (item) => {
-          try {
-            const flags = await getFlagsByProcurement(item.id);
-            flagsByProcurement[item.id] = flags || [];
-          } catch {
-            flagsByProcurement[item.id] = [];
-          }
-        })
-      );
-
-      const formatted = procurementList.map((item) => {
-        const score = item.prediction_score || 0;
-        let severity = "Low";
-        if (score >= 0.7) severity = "High";
-        else if (score >= 0.4) severity = "Medium";
-
-        const flags = flagsByProcurement[item.id] || [];
-        const myFlag = flags.find((f) => f.auditor_id === currentUserId);
-        const isFlagged =
-          flaggedProcurementIds.has(item.id) || flags.length > 0;
-
-        return {
-          ...item,
-          prediction_score: score,
-          severity,
-          isUploader: item.created_by === currentUserId,
-          is_flagged: isFlagged,
-          flag_description:
-            myFlag?.description || flags[0]?.description || "",
-          flag_count: flags.length,
-          has_anomaly: flaggedProcurementIds.has(item.id),
-        };
-      });
-
-      setAnomalies(formatted);
-      const pages = procurements?.pages || 1;
-      setTotalPages(pages);
-      reviewPageCache.set(cacheKey, { anomalies: formatted, totalPages: pages });
-=======
   const currentUserId = useSelector((state) => state.auth?.user?.id);
   const navigate = useNavigate();
 
   const persistCache = (nextCache) => {
     setCache(nextCache);
-    try {
-      sessionStorage.setItem(CACHE_KEY, JSON.stringify(nextCache));
->>>>>>> 982b56cfe7aed232c9dec49aa5a247d13994ca32
-    } catch (err) {
+  try {
+    sessionStorage.setItem(CACHE_KEY, JSON.stringify(nextCache));
+  } catch (err) {
       console.warn("Could not persist procurement cache", err);
     }
   };
@@ -165,7 +78,12 @@ const ReviewAnomalies = () => {
 
     try {
       const response = await getAllAnomalies();
-      const list = response?.data || response || [];
+      const payload = response?.data || response || [];
+      const list = Array.isArray(payload)
+        ? payload
+        : Array.isArray(payload.rows)
+        ? payload.rows
+        : [];
       setAnomalyList(list);
       persistAnomaliesCache(list);
       return list;
@@ -201,22 +119,27 @@ const ReviewAnomalies = () => {
       const pageData = cache[pageToLoad];
       setProcurements(pageData.rows);
       setPage(pageData.page);
-      setPages(pageData.pages);
+      setPages(Math.max(1, pageData.pages || Math.ceil(pageData.total / ITEMS_PER_PAGE)));
       setTotal(pageData.total);
+      setLoading(false);
       return;
     }
 
     setLoading(true);
     try {
-      const pageData = await getAllProcurements(pageToLoad, ITEMS_PER_PAGE);
-      const normalized = pageData?.rows
-        ? pageData
+      const pageData = await getAllProcurements({
+        page: pageToLoad,
+        limit: ITEMS_PER_PAGE,
+      });
+      const payload = pageData?.data || pageData;
+      const normalized = payload?.rows
+        ? payload
         : {
-            rows: pageData,
-            total: Array.isArray(pageData) ? pageData.length : 0,
+            rows: Array.isArray(payload) ? payload : [],
+            total: Array.isArray(payload) ? payload.length : 0,
             page: pageToLoad,
-            pages: Array.isArray(pageData)
-              ? Math.max(1, Math.ceil(pageData.length / ITEMS_PER_PAGE))
+            pages: Array.isArray(payload)
+              ? Math.max(1, Math.ceil(payload.length / ITEMS_PER_PAGE))
               : 1,
           };
 
@@ -241,7 +164,7 @@ const ReviewAnomalies = () => {
       persistCache(nextCache);
       setProcurements(items);
       setPage(normalized.page);
-      setPages(normalized.pages);
+      setPages(Math.max(1, normalized.pages || Math.ceil(normalized.total / ITEMS_PER_PAGE)));
       setTotal(normalized.total);
     } catch (error) {
       console.error("Failed to load procurements", error);
@@ -292,7 +215,8 @@ const ReviewAnomalies = () => {
             : a
         )
       );
-      reviewPageCache.clear();
+      persistCache({});
+      sessionStorage.removeItem(CACHE_KEY);
 
       toast.success(`Procurement #${item.id} marked as anomaly`);
     } catch (error) {
@@ -460,19 +384,6 @@ const ReviewAnomalies = () => {
         ))}
       </Stack>
 
-<<<<<<< HEAD
-      {!loading && totalPages > 1 && (
-        <Stack alignItems="center" mt={4}>
-          <Pagination
-            count={totalPages}
-            page={page}
-            onChange={(_, nextPage) => setPage(nextPage)}
-            color="primary"
-            showFirstButton
-            showLastButton
-          />
-        </Stack>
-=======
       {!loading && pages > 1 && (
         <Box display="flex" justifyContent="space-between" alignItems="center" mt={4}>
           <Button
@@ -499,7 +410,7 @@ const ReviewAnomalies = () => {
             Next
           </Button>
         </Box>
->>>>>>> 982b56cfe7aed232c9dec49aa5a247d13994ca32
+
       )}
     </Box>
   );
