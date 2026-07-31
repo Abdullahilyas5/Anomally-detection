@@ -38,6 +38,11 @@ const sidebarConfig = {
     { label: "Manual Upload", icon: <MdOutlineAdd className="text-base" />, path: "/auditor/manual-upload" },
     { label: "Review Anomalies", icon: <MdOutlineRateReview />, path: "/auditor/review-anomalies" },
     { label: "Generate Reports", icon: <MdAnalytics className="text-base" />, path: "/auditor/reports" },
+     {
+      label: "Configuration",
+      icon: <RiListSettingsLine />,
+      path: "/auditor/configuration",
+    },
   ],
 
   citizen: [

@@ -1,54 +1,11 @@
 import React, { useState, useEffect } from "react";
-
-// Sample logs, replace with API data
-const logsData = [
-  {
-    id: 1,
-    timestamp: "2026-03-10 10:00",
-    level: "INFO",
-    role: "Admin",
-    message: "Admin updated anomaly threshold"
-  },
-  {
-    id: 2,
-    timestamp: "2026-03-10 11:30",
-    level: "WARNING",
-    role: "Auditor",
-    message: "Auditor viewed anomaly report"
-  },
-  {
-    id: 3,
-    timestamp: "2026-03-10 12:10",
-    level: "CRITICAL",
-    role: "System",
-    message: "Anomaly score exceeded alert threshold"
-  },
-  {
-    id: 4,
-    timestamp: "2026-03-10 12:50",
-    level: "INFO",
-    role: "Admin",
-    message: "Admin retrained detection model"
-  },
-  {
-    id: 5,
-    timestamp: "2026-03-10 13:10",
-    level: "WARNING",
-    role: "Auditor",
-    message: "Auditor checked pending actions"
-  },
-  {
-    id: 6,
-    timestamp: "2026-03-10 14:00",
-    level: "CRITICAL",
-    role: "System",
-    message: "Threshold exceeded for multiple anomalies"
-  }
-];
+import apiClient from "../../apis/api-client";
 
 const AdminLogs = () => {
 
   const [logs, setLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
   const [levelFilter, setLevelFilter] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
@@ -59,8 +16,35 @@ const AdminLogs = () => {
   const logsPerPage = 5;
 
   useEffect(() => {
-    // Replace with API call in production
-    setLogs(logsData);
+    const fetchLogs = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await apiClient.get('/logs', {
+          params: {
+            limit: 100,
+          },
+        });
+
+        const payload = response.data?.data;
+        const apiLogs = Array.isArray(payload)
+          ? payload
+          : payload?.logs || payload?.data || [];
+
+        setLogs(apiLogs);
+      } catch (err) {
+        console.error('Failed to load logs:', err);
+        setError(
+          err.response?.data?.message ||
+          'Unable to fetch logs. Please try again later.'
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLogs();
   }, []);
 
   const handleReset = () => {
@@ -72,15 +56,26 @@ const AdminLogs = () => {
     setCurrentPage(1);
   };
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, levelFilter, roleFilter, fromDate, toDate]);
+
   const filteredLogs = logs.filter((log) => {
-    const logDate = new Date(log.timestamp.split(" ")[0]);
+    const timestamp = log.created_at || log.timestamp || log.createdAt || "";
+    const logDate = new Date(timestamp.toString().split(" ")[0]);
     const from = fromDate ? new Date(fromDate) : null;
     const to = toDate ? new Date(toDate) : null;
+    const severity = (log.severity || log.level || "").toString();
+    const role = (log.user_role || log.role || "").toString();
+    const action = (log.action || "").toString();
+    const message = (log.message || "").toString();
+
+    const searchTerm = search.toLowerCase();
 
     return (
-      log.message.toLowerCase().includes(search.toLowerCase()) &&
-      (levelFilter ? log.level === levelFilter : true) &&
-      (roleFilter ? log.role === roleFilter : true) &&
+      (message.toLowerCase().includes(searchTerm) || action.toLowerCase().includes(searchTerm) || role.toLowerCase().includes(searchTerm)) &&
+      (levelFilter ? severity.toLowerCase() === levelFilter.toLowerCase() : true) &&
+      (roleFilter ? role.toLowerCase() === roleFilter.toLowerCase() : true) &&
       (!from || logDate >= from) &&
       (!to || logDate <= to)
     );
@@ -89,10 +84,10 @@ const AdminLogs = () => {
   const indexOfLast = currentPage * logsPerPage;
   const indexOfFirst = indexOfLast - logsPerPage;
   const currentLogs = filteredLogs.slice(indexOfFirst, indexOfLast);
-  const totalPages = Math.ceil(filteredLogs.length / logsPerPage);
+  const totalPages = Math.max(1, Math.ceil(filteredLogs.length / logsPerPage));
 
   const levelColor = (level) => {
-    switch (level) {
+    switch ((level || "").toString().toUpperCase()) {
       case "INFO": return "bg-blue-100 text-blue-700";
       case "WARNING": return "bg-yellow-100 text-yellow-700";
       case "CRITICAL": return "bg-red-100 text-red-700";
@@ -165,55 +160,74 @@ const AdminLogs = () => {
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-full">
-          <thead className="bg-gray-50 border-y">
-            <tr>
-              <th className="p-3 text-left text-sm font-semibold">Timestamp</th>
-              <th className="p-3 text-left text-sm font-semibold">Level</th>
-              <th className="p-3 text-left text-sm font-semibold">Role</th>
-              <th className="p-3 text-left text-sm font-semibold">Message</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {currentLogs.map((log) => (
-              <tr key={log.id} className="border-t hover:bg-gray-50">
-                <td className="p-3">{log.timestamp}</td>
-                <td className="p-3">
-                  <span className={`px-2 py-1 rounded text-xs font-semibold ${levelColor(log.level)}`}>
-                    {log.level}
-                  </span>
-                </td>
-                <td className="p-3">{log.role}</td>
-                <td className="p-3">{log.message}</td>
+        {loading ? (
+          <div className="p-6 text-center text-gray-500">Loading logs...</div>
+        ) : error ? (
+          <div className="p-6 text-center text-red-600">{error}</div>
+        ) : currentLogs.length === 0 ? (
+          <div className="p-6 text-center text-gray-500">No logs found for the current filter selection.</div>
+        ) : (
+          <table className="min-w-full">
+            <thead className="bg-gray-50 border-y">
+              <tr>
+                <th className="p-3 text-left text-sm font-semibold">Timestamp</th>
+                <th className="p-3 text-left text-sm font-semibold">Level</th>
+                <th className="p-3 text-left text-sm font-semibold">Role</th>
+                <th className="p-3 text-left text-sm font-semibold">Action</th>
+                <th className="p-3 text-left text-sm font-semibold">Message</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {currentLogs.map((log) => {
+                const timestamp = log.created_at || log.timestamp || log.createdAt || "-";
+                const severity = log.severity || log.level || "INFO";
+                const role = log.user_role || log.role || "System";
+                const action = log.action || "-";
+
+                return (
+                  <tr key={log.id || log.entity_id || `${timestamp}-${action}`} className="border-t hover:bg-gray-50">
+                    <td className="p-3">{new Date(timestamp).toLocaleString()}</td>
+                    <td className="p-3">
+                      <span className={`px-2 py-1 rounded text-xs font-semibold ${levelColor(severity)}`}>
+                        {severity.toUpperCase()}
+                      </span>
+                    </td>
+                    <td className="p-3 capitalize">{role}</td>
+                    <td className="p-3 truncate max-w-xs">{action}</td>
+                    <td className="p-3 truncate max-w-2xl">{log.message || "-"}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
       </div>
 
       {/* Pagination */}
-      <div className="p-4 flex justify-between items-center">
-        <button
-          className="px-3 py-1 border rounded"
-          disabled={currentPage === 1}
-          onClick={() => setCurrentPage(currentPage - 1)}
-        >
-          Prev
-        </button>
+      {filteredLogs.length > 0 && (
+        <div className="p-4 flex justify-between items-center">
+          <button
+            className="px-3 py-1 border rounded"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+          >
+            Prev
+          </button>
 
-        <span className="text-sm">
-          Page {currentPage} of {totalPages}
-        </span>
+          <span className="text-sm">
+            Page {currentPage} of {totalPages}
+          </span>
 
-        <button
-          className="px-3 py-1 border rounded"
-          disabled={currentPage === totalPages}
-          onClick={() => setCurrentPage(currentPage + 1)}
-        >
-          Next
-        </button>
-      </div>
+          <button
+            className="px-3 py-1 border rounded"
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+          >
+            Next
+          </button>
+        </div>
+      )}
 
     </div>
   );

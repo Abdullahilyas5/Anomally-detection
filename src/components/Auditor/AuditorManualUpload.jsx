@@ -20,6 +20,7 @@ const AuditorManualUpload = () => {
 
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [errors, setErrors] = useState([]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -32,6 +33,24 @@ const AuditorManualUpload = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const validationErrors = [];
+
+    if (!formData.country.trim()) validationErrors.push('Country is required.');
+    if (!formData.tender_year || Number(formData.tender_year) <= 0) validationErrors.push('Tender year must be a positive number.');
+    if (!formData.bidder_id.trim()) validationErrors.push('Bidder ID is required.');
+    if (!formData.buyer_id.trim()) validationErrors.push('Buyer ID is required.');
+    if (!formData.main_cpv_2.trim()) validationErrors.push('Main CPV Level 2 is required.');
+    if (!formData.main_cpv_3.trim()) validationErrors.push('Main CPV Level 3 is required.');
+    if (!formData.bid_price || Number(formData.bid_price) <= 0) validationErrors.push('Bid price must be greater than zero.');
+    if (!formData.lot_bidscount || Number(formData.lot_bidscount) <= 0) validationErrors.push('Lot bid count must be greater than zero.');
+
+    if (validationErrors.length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setErrors([]);
 
     try {
       setLoading(true);
@@ -54,7 +73,6 @@ const AuditorManualUpload = () => {
 
       // Save only prediction data
       setResult(response.data.prediction);
-
       alert('Prediction completed successfully!');
     } catch (error) {
       console.error(error);
@@ -89,6 +107,17 @@ const AuditorManualUpload = () => {
           onSubmit={handleSubmit}
           className="bg-white shadow-lg rounded-xl p-6 md:p-8 space-y-6"
         >
+          {errors.length > 0 && (
+            <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+           <p className="font-semibold mb-2">Please fix the following:</p>
+           <ul className="list-disc list-inside space-y-1">
+             {errors.map((error, index) => (
+               <li key={index}>{error}</li>
+             ))}
+           </ul>
+            </div>
+          )}
+
           {/* SECTION 1 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -96,6 +125,7 @@ const AuditorManualUpload = () => {
               <input
                 name="country"
                 placeholder="e.g. ES"
+                value={formData.country}
                 onChange={handleChange}
                 className={inputClass}
               />
@@ -106,6 +136,7 @@ const AuditorManualUpload = () => {
               <input
                 type="number"
                 name="tender_year"
+                value={formData.tender_year}
                 placeholder="e.g. 2010"
                 onChange={handleChange}
                 className={inputClass}
@@ -116,6 +147,7 @@ const AuditorManualUpload = () => {
               <div className={labelClass}>Bidder ID</div>
               <input
                 name="bidder_id"
+                value={formData.bidder_id}
                 onChange={handleChange}
                 className={inputClass}
               />
@@ -125,6 +157,7 @@ const AuditorManualUpload = () => {
               <div className={labelClass}>Buyer ID</div>
               <input
                 name="buyer_id"
+                value={formData.buyer_id}
                 onChange={handleChange}
                 className={inputClass}
               />
@@ -137,6 +170,7 @@ const AuditorManualUpload = () => {
               <div className={labelClass}>Main CPV Level 2</div>
               <input
                 name="main_cpv_2"
+                value={formData.main_cpv_2}
                 onChange={handleChange}
                 className={inputClass}
               />
@@ -146,6 +180,7 @@ const AuditorManualUpload = () => {
               <div className={labelClass}>Main CPV Level 3</div>
               <input
                 name="main_cpv_3"
+                value={formData.main_cpv_3}
                 onChange={handleChange}
                 className={inputClass}
               />
@@ -159,6 +194,7 @@ const AuditorManualUpload = () => {
               <input
                 type="number"
                 name="bid_price"
+                value={formData.bid_price}
                 onChange={handleChange}
                 className={inputClass}
               />
@@ -169,6 +205,7 @@ const AuditorManualUpload = () => {
               <input
                 type="number"
                 name="lot_bidscount"
+                value={formData.lot_bidscount}
                 onChange={handleChange}
                 className={inputClass}
               />

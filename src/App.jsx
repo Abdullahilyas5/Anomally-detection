@@ -291,6 +291,17 @@ const App = () => {
         </ProtectedRoute>
       } />
 
+      <Route
+        path="/auditor/configuration"
+        element={
+          <ProtectedRoute>
+            <AuditorPage role="auditor">
+              <Configuration />
+            </AuditorPage>
+          </ProtectedRoute>
+        }
+      />
+
       <Route path="/auditor/csv-upload" element={
         <ProtectedRoute>
           <AuditorPage role="auditor">

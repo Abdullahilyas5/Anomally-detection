@@ -48,12 +48,6 @@ const formattedPageName = pageName.charAt(0).toUpperCase() + pageName.slice(1);
 
       {/* Right section: notifications + user */}
       <div className='flex items-center -z-10 gap-4'>
-        <button className='relative'>
-          <MdNotifications className='text-2xl text-textSecondary hover:text-primary transition' />
-          {/* Optional: notification badge */}
-          <span className='absolute -top-1 -right-1 w-2 h-2 bg-accent rounded-full'></span>
-        </button>
-
         <div className='flex items-center gap-2 cursor-pointer'>
           <FaUserCircle className='text-2xl text-textSecondary hover:text-primary transition' />
           <span className='text-textMain font-medium'>{Pageowned.charAt(0).toUpperCase() + Pageowned.slice(1)}</span>

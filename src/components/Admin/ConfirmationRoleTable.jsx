@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "../button";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import ThumbDownAltIcon from "@mui/icons-material/ThumbDownAlt";
@@ -20,8 +20,17 @@ const ConfirmationRoleTable = ({ data = [] }) => {
   const endIndex = startIndex + usersPerPage;
 
   const displayedUsers = localData.slice(startIndex, endIndex);
+  const totalPages = Math.max(1, Math.ceil(localData.length / usersPerPage));
 
-  const totalPages = Math.ceil(localData.length / usersPerPage);
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
+  useEffect(() => {
+    setLocalData(data);
+  }, [data]);
 
   /* ================= APPROVE ================= */
   const handleApprove = async (user) => {
@@ -78,68 +87,78 @@ const ConfirmationRoleTable = ({ data = [] }) => {
           </thead>
 
           <tbody>
-            {displayedUsers.map(user => (
-              <tr
-                key={user.id}
-                className={`border-t hover:bg-gray-50 transition-opacity duration-300 ${
-                  loadingId === user.id ? "opacity-50" : "opacity-100"
-                }`}
-              >
+            {displayedUsers.length > 0 ? (
+              displayedUsers.map(user => (
+                <tr
+                  key={user.id}
+                  className={`border-t hover:bg-gray-50 transition-opacity duration-300 ${
+                    loadingId === user.id ? "opacity-50" : "opacity-100"
+                  }`}
+                >
 
-                <td className="p-3 font-medium">{user.name}</td>
-                <td className="p-3">{user.email}</td>
-                <td className="p-3">{user.role}</td>
+                  <td className="p-3 font-medium">{user.name}</td>
+                  <td className="p-3">{user.email}</td>
+                  <td className="p-3">{user.role}</td>
 
-                <td className="flex gap-3 p-3">
+                  <td className="flex gap-3 p-3">
 
-                  <Button
-                    text={loadingId === user.id ? "Processing..." : "Confirm"}
-                    variant="neutral_blue"
-                    Icon={<ThumbUpIcon />}
-                    onClick={() => handleApprove(user)}
-                    disabled={loadingId === user.id}
-                  />
+                    <Button
+                      text={loadingId === user.id ? "Processing..." : "Confirm"}
+                      variant="neutral_blue"
+                      Icon={<ThumbUpIcon />}
+                      onClick={() => handleApprove(user)}
+                      disabled={loadingId === user.id}
+                    />
 
-                  <Button
-                    text={loadingId === user.id ? "Processing..." : "Decline"}
-                    variant="accent"
-                    Icon={<ThumbDownAltIcon />}
-                    onClick={() => handleDecline(user)}
-                    disabled={loadingId === user.id}
-                  />
+                    <Button
+                      text={loadingId === user.id ? "Processing..." : "Decline"}
+                      variant="accent"
+                      Icon={<ThumbDownAltIcon />}
+                      onClick={() => handleDecline(user)}
+                      disabled={loadingId === user.id}
+                    />
 
+                  </td>
+
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={4} className="p-6 text-center text-gray-600">
+                  No confirmation requests found.
                 </td>
-
               </tr>
-            ))}
+            )}
           </tbody>
 
         </table>
 
         {/* Pagination */}
-        <div className="flex justify-between items-center mt-4">
+        {localData.length > 0 && (
+          <div className="flex justify-between items-center mt-4">
 
-          <button
-            onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
-            disabled={currentPage === 1}
-            className="px-3 py-1 border rounded disabled:opacity-50"
-          >
-            Prev
-          </button>
+            <button
+              onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1 border rounded disabled:opacity-50"
+            >
+              Prev
+            </button>
 
-          <span className="text-sm">
-            Page {currentPage} of {totalPages}
-          </span>
+            <span className="text-sm">
+              Page {currentPage} of {totalPages}
+            </span>
 
-          <button
-            onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
-            disabled={currentPage === totalPages}
-            className="px-3 py-1 border rounded disabled:opacity-50"
-          >
-            Next
-          </button>
+            <button
+              onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1 border rounded disabled:opacity-50"
+            >
+              Next
+            </button>
 
-        </div>
+          </div>
+        )}
 
       </div>
     </div>
