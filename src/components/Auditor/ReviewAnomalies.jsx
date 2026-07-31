@@ -20,18 +20,25 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
 import { getAllProcurements } from "../../apis/modelapi";
-import { getFlagsByProcurement } from "../../apis/flags";
 import { getAllAnomalies, markProcurementAsAnomaly } from "../../apis/anomalies";
 
+<<<<<<< HEAD
 const PAGE_SIZE = 10;
 const reviewPageCache = new Map();
+=======
+const ITEMS_PER_PAGE = 10;
+const CACHE_KEY = "auditorReviewProcurementsCache";
+const ANOMALIES_CACHE_KEY = "auditorReviewAnomaliesCache";
+>>>>>>> 982b56cfe7aed232c9dec49aa5a247d13994ca32
 
 const ReviewAnomalies = () => {
-  const [anomalies, setAnomalies] = useState([]);
+  const [procurements, setProcurements] = useState([]);
+  const [anomalyList, setAnomalyList] = useState([]);
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState(null);
   const [page, setPage] = useState(1);
+<<<<<<< HEAD
   const [totalPages, setTotalPages] = useState(1);
 
   const navigate = useNavigate();
@@ -51,9 +58,26 @@ const ReviewAnomalies = () => {
       return;
     }
 
+=======
+  const [pages, setPages] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [cache, setCache] = useState(() => {
+>>>>>>> 982b56cfe7aed232c9dec49aa5a247d13994ca32
     try {
-      setLoading(true);
+      return JSON.parse(sessionStorage.getItem(CACHE_KEY)) || {};
+    } catch {
+      return {};
+    }
+  });
+  const [anomaliesCache, setAnomaliesCache] = useState(() => {
+    try {
+      return JSON.parse(sessionStorage.getItem(ANOMALIES_CACHE_KEY)) || null;
+    } catch {
+      return null;
+    }
+  });
 
+<<<<<<< HEAD
       const [procurements, anomaliesRes] = await Promise.all([
         getAllProcurements({ page, limit: PAGE_SIZE }),
         getAllAnomalies({ page: 1, limit: 1000 }),
@@ -110,19 +134,131 @@ const ReviewAnomalies = () => {
       const pages = procurements?.pages || 1;
       setTotalPages(pages);
       reviewPageCache.set(cacheKey, { anomalies: formatted, totalPages: pages });
+=======
+  const currentUserId = useSelector((state) => state.auth?.user?.id);
+  const navigate = useNavigate();
+
+  const persistCache = (nextCache) => {
+    setCache(nextCache);
+    try {
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify(nextCache));
+>>>>>>> 982b56cfe7aed232c9dec49aa5a247d13994ca32
     } catch (err) {
-      console.error(err);
+      console.warn("Could not persist procurement cache", err);
+    }
+  };
+
+  const persistAnomaliesCache = (list) => {
+    setAnomaliesCache(list);
+    try {
+      sessionStorage.setItem(ANOMALIES_CACHE_KEY, JSON.stringify(list));
+    } catch (err) {
+      console.warn("Could not persist anomalies cache", err);
+    }
+  };
+
+  const loadAnomalies = async () => {
+    if (anomaliesCache !== null) {
+      setAnomalyList(anomaliesCache);
+      return anomaliesCache;
+    }
+
+    try {
+      const response = await getAllAnomalies();
+      const list = response?.data || response || [];
+      setAnomalyList(list);
+      persistAnomaliesCache(list);
+      return list;
+    } catch (error) {
+      console.error("Failed to load anomalies", error);
+      toast.error("Failed to load anomalies");
+      return [];
+    }
+  };
+
+  const formatProcurementItem = (item, anomalyMap) => {
+    const score = item.prediction_score || 0;
+    let severity = "Low";
+    if (score >= 0.7) severity = "High";
+    else if (score >= 0.4) severity = "Medium";
+
+    const existingAnomaly = anomalyMap.get(item.id);
+
+    return {
+      ...item,
+      prediction_score: score,
+      severity,
+      isUploader: item.created_by === currentUserId,
+      is_flagged: Boolean(existingAnomaly),
+      flag_description: existingAnomaly?.description || "",
+      flag_count: existingAnomaly ? 1 : 0,
+      has_anomaly: Boolean(existingAnomaly),
+    };
+  };
+
+  const loadPage = async (pageToLoad) => {
+    if (cache[pageToLoad]) {
+      const pageData = cache[pageToLoad];
+      setProcurements(pageData.rows);
+      setPage(pageData.page);
+      setPages(pageData.pages);
+      setTotal(pageData.total);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const pageData = await getAllProcurements(pageToLoad, ITEMS_PER_PAGE);
+      const normalized = pageData?.rows
+        ? pageData
+        : {
+            rows: pageData,
+            total: Array.isArray(pageData) ? pageData.length : 0,
+            page: pageToLoad,
+            pages: Array.isArray(pageData)
+              ? Math.max(1, Math.ceil(pageData.length / ITEMS_PER_PAGE))
+              : 1,
+          };
+
+      const anomaliesForPage = await loadAnomalies();
+      const anomalyMap = new Map(
+        anomaliesForPage.map((anomaly) => [anomaly.procurement_id, anomaly])
+      );
+      const items = normalized.rows.map((item) =>
+        formatProcurementItem(item, anomalyMap)
+      );
+
+      const nextCache = {
+        ...cache,
+        [pageToLoad]: {
+          rows: items,
+          total: normalized.total,
+          page: normalized.page,
+          pages: normalized.pages,
+        },
+      };
+
+      persistCache(nextCache);
+      setProcurements(items);
+      setPage(normalized.page);
+      setPages(normalized.pages);
+      setTotal(normalized.total);
+    } catch (error) {
+      console.error("Failed to load procurements", error);
       toast.error("Failed to load procurements");
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    loadPage(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const updateFlag = (id, field, value) => {
-    setAnomalies((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, [field]: value } : item
-      )
+    setProcurements((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, [field]: value } : item))
     );
   };
 
@@ -149,7 +285,7 @@ const ReviewAnomalies = () => {
         flagType,
       });
 
-      setAnomalies((prev) =>
+      setProcurements((prev) =>
         prev.map((a) =>
           a.id === item.id
             ? { ...a, is_flagged: true, has_anomaly: true }
@@ -159,17 +295,17 @@ const ReviewAnomalies = () => {
       reviewPageCache.clear();
 
       toast.success(`Procurement #${item.id} marked as anomaly`);
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
       toast.error(
-        err.response?.data?.error || "Failed to mark as anomaly"
+        error?.response?.data?.error || "Failed to mark as anomaly"
       );
     } finally {
       setSavingId(null);
     }
   };
 
-  const filteredAnomalies = anomalies.filter((a) => {
+  const filteredProcurements = procurements.filter((a) => {
     if (filter === "mine") return a.isUploader;
     if (filter === "others") return !a.isUploader;
     if (filter === "flagged") return a.is_flagged || a.has_anomaly;
@@ -221,12 +357,12 @@ const ReviewAnomalies = () => {
         </Box>
       )}
 
-      {!loading && filteredAnomalies.length === 0 && (
+      {!loading && filteredProcurements.length === 0 && (
         <Alert severity="info">No procurements found for this filter.</Alert>
       )}
 
       <Stack spacing={2}>
-        {filteredAnomalies.map((a) => (
+        {filteredProcurements.map((a) => (
           <Card
             key={a.id}
             sx={{
@@ -235,11 +371,14 @@ const ReviewAnomalies = () => {
             }}
           >
             <CardContent>
-              <Box display="flex" justifyContent="space-between" flexWrap="wrap" gap={1}>
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                flexWrap="wrap"
+                gap={1}
+              >
                 <Box>
-                  <Typography fontWeight={700}>
-                    Procurement #{a.id}
-                  </Typography>
+                  <Typography fontWeight={700}>Procurement #{a.id}</Typography>
                   <Typography fontSize={13} color="text.secondary">
                     {a.country} • {a.tender_year}
                   </Typography>
@@ -289,9 +428,7 @@ const ReviewAnomalies = () => {
                   label="Auditor comment"
                   placeholder="Describe why this procurement is anomalous..."
                   value={a.flag_description}
-                  onChange={(e) =>
-                    updateFlag(a.id, "flag_description", e.target.value)
-                  }
+                  onChange={(e) => updateFlag(a.id, "flag_description", e.target.value)}
                   disabled={a.has_anomaly}
                 />
               </Box>
@@ -323,6 +460,7 @@ const ReviewAnomalies = () => {
         ))}
       </Stack>
 
+<<<<<<< HEAD
       {!loading && totalPages > 1 && (
         <Stack alignItems="center" mt={4}>
           <Pagination
@@ -334,6 +472,34 @@ const ReviewAnomalies = () => {
             showLastButton
           />
         </Stack>
+=======
+      {!loading && pages > 1 && (
+        <Box display="flex" justifyContent="space-between" alignItems="center" mt={4}>
+          <Button
+            disabled={page === 1}
+            onClick={() => {
+              const nextPage = Math.max(1, page - 1);
+              setPage(nextPage);
+              loadPage(nextPage);
+            }}
+          >
+            Previous
+          </Button>
+          <Typography color="text.secondary">
+            Page {page} of {pages} ({total} records)
+          </Typography>
+          <Button
+            disabled={page === pages}
+            onClick={() => {
+              const nextPage = Math.min(pages, page + 1);
+              setPage(nextPage);
+              loadPage(nextPage);
+            }}
+          >
+            Next
+          </Button>
+        </Box>
+>>>>>>> 982b56cfe7aed232c9dec49aa5a247d13994ca32
       )}
     </Box>
   );

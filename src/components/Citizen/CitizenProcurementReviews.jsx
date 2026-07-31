@@ -36,7 +36,8 @@ const CitizenProcurementReviews = () => {
         const anomalyList = anomaliesRes?.data || anomaliesRes || [];
         const anomalyProcIds = new Set(anomalyList.map((a) => a.procurement_id));
 
-        const mapped = (procData || []).map((p) => {
+        const procList = procData?.rows || procData || [];
+        const mapped = procList.map((p) => {
           const score = p.prediction_score || 0;
           const hasAnomaly = anomalyProcIds.has(p.id);
           return {
@@ -86,7 +87,7 @@ const CitizenProcurementReviews = () => {
   const filteredProcurements = procurements.filter(proc => {
     const matchSearch = proc.name.toLowerCase().includes(search.toLowerCase()) ||
                        proc.vendor.toLowerCase().includes(search.toLowerCase()) ||
-                       proc.country?.toLowerCase().includes(search.toLowerCase());
+                       (proc.country || '').toLowerCase().includes(search.toLowerCase());
     const matchFilter = filter === "All" ? true : proc.status === filter;
     return matchSearch && matchFilter;
   });
