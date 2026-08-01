@@ -67,7 +67,7 @@ const CitizenProcurementReviews = () => {
   }, []);
 
   const getStatusIcon = (status) => {
-    switch(status) {
+    switch (status) {
       case "Approved": return <MdCheckCircle className="text-green-600" />;
       case "Pending Review": return <MdPending className="text-orange-600" />;
       case "Reviewed": return <MdCheckCircle className="text-blue-600" />;
@@ -76,7 +76,7 @@ const CitizenProcurementReviews = () => {
   };
 
   const getStatusColor = (status) => {
-    switch(status) {
+    switch (status) {
       case "Approved": return "bg-cleanBlue text-primary border-cleanBlue";
       case "Pending Review": return "bg-softaccent text-lightoragne border-softaccent";
       case "Reviewed": return "bg-lightBlue text-secondary border-lightBlue";
@@ -86,8 +86,8 @@ const CitizenProcurementReviews = () => {
 
   const filteredProcurements = procurements.filter(proc => {
     const matchSearch = proc.name.toLowerCase().includes(search.toLowerCase()) ||
-                       proc.vendor.toLowerCase().includes(search.toLowerCase()) ||
-                       (proc.country || '').toLowerCase().includes(search.toLowerCase());
+      proc.vendor.toLowerCase().includes(search.toLowerCase()) ||
+      (proc.country || '').toLowerCase().includes(search.toLowerCase());
     const matchFilter = filter === "All" ? true : proc.status === filter;
     return matchSearch && matchFilter;
   });

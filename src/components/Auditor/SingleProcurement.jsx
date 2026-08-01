@@ -91,8 +91,8 @@ const SingleProcurement = () => {
     procurement.prediction_score >= 0.7
       ? "High"
       : procurement.prediction_score >= 0.4
-      ? "Medium"
-      : "Low";
+        ? "Medium"
+        : "Low";
 
   const severityStyles = {
     High: { border: "border-red-500", text: "text-red-600", badge: "bg-red-100 text-red-700" },

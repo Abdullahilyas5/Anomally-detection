@@ -33,9 +33,10 @@ const ReviewAnomalies = () => {
   const [savingId, setSavingId] = useState(null);
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
-const [total, setTotal] = useState(0);
-const [cache, setCache] = useState(() => {
-  try {
+  const [total, setTotal] = useState(0);
+  const [errors, setErrors] = useState({});
+  const [cache, setCache] = useState(() => {
+    try {
       return JSON.parse(sessionStorage.getItem(CACHE_KEY)) || {};
     } catch {
       return {};
@@ -54,9 +55,9 @@ const [cache, setCache] = useState(() => {
 
   const persistCache = (nextCache) => {
     setCache(nextCache);
-  try {
-    sessionStorage.setItem(CACHE_KEY, JSON.stringify(nextCache));
-  } catch (err) {
+    try {
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify(nextCache));
+    } catch (err) {
       console.warn("Could not persist procurement cache", err);
     }
   };
@@ -82,8 +83,8 @@ const [cache, setCache] = useState(() => {
       const list = Array.isArray(payload)
         ? payload
         : Array.isArray(payload.rows)
-        ? payload.rows
-        : [];
+          ? payload.rows
+          : [];
       setAnomalyList(list);
       persistAnomaliesCache(list);
       return list;
@@ -135,13 +136,13 @@ const [cache, setCache] = useState(() => {
       const normalized = payload?.rows
         ? payload
         : {
-            rows: Array.isArray(payload) ? payload : [],
-            total: Array.isArray(payload) ? payload.length : 0,
-            page: pageToLoad,
-            pages: Array.isArray(payload)
-              ? Math.max(1, Math.ceil(payload.length / ITEMS_PER_PAGE))
-              : 1,
-          };
+          rows: Array.isArray(payload) ? payload : [],
+          total: Array.isArray(payload) ? payload.length : 0,
+          page: pageToLoad,
+          pages: Array.isArray(payload)
+            ? Math.max(1, Math.ceil(payload.length / ITEMS_PER_PAGE))
+            : 1,
+        };
 
       const anomaliesForPage = await loadAnomalies();
       const anomalyMap = new Map(
@@ -183,10 +184,14 @@ const [cache, setCache] = useState(() => {
     setProcurements((prev) =>
       prev.map((item) => (item.id === id ? { ...item, [field]: value } : item))
     );
+    if (field === "flag_description" && value.trim()) {
+      setErrors((prev) => ({ ...prev, [id]: false }));
+    }
   };
 
   const handleMarkAsAnomaly = async (item) => {
     if (!item.flag_description?.trim()) {
+      setErrors((prev) => ({ ...prev, [item.id]: true }));
       toast.error("Please add a comment before marking as anomaly");
       return;
     }
@@ -198,8 +203,8 @@ const [cache, setCache] = useState(() => {
         item.severity === "High"
           ? "error"
           : item.severity === "Medium"
-          ? "suspicious"
-          : "warning";
+            ? "suspicious"
+            : "warning";
 
       await markProcurementAsAnomaly({
         procurementId: item.id,
@@ -233,6 +238,7 @@ const [cache, setCache] = useState(() => {
     if (filter === "mine") return a.isUploader;
     if (filter === "others") return !a.isUploader;
     if (filter === "flagged") return a.is_flagged || a.has_anomaly;
+    if (filter === "unflagged") return !a.is_flagged && !a.has_anomaly;
     return true;
   });
 
@@ -249,18 +255,18 @@ const [cache, setCache] = useState(() => {
   };
 
   return (
-    <Box sx={{ p: 4, background: "#f4f6fb", minHeight: "100vh" }}>
-      <Box mb={3}>
+    <Box sx={{ background: "#f4f6fb", minHeight: "100vh" }}>
+      {/*<Box mb={3}>
         <Typography variant="h4" fontWeight={800}>
           Review Anomalies
         </Typography>
         <Typography color="text.secondary">
           Review procurements, flag issues, and mark anomalies for admin review
         </Typography>
-      </Box>
+      </Box>*/}
 
       <Stack direction="row" spacing={1} mb={3} flexWrap="wrap" gap={1}>
-        {["all", "mine", "others", "flagged"].map((type) => (
+        {["all", "mine", "others", "flagged", "unflagged"].map((type) => (
           <Button
             key={type}
             onClick={() => {
@@ -348,12 +354,15 @@ const [cache, setCache] = useState(() => {
               <Box mt={2}>
                 <TextField
                   fullWidth
+                  required
                   size="small"
                   label="Auditor comment"
                   placeholder="Describe why this procurement is anomalous..."
-                  value={a.flag_description}
+                  value={a.flag_description || ""}
                   onChange={(e) => updateFlag(a.id, "flag_description", e.target.value)}
                   disabled={a.has_anomaly}
+                  error={Boolean(errors[a.id])}
+                  helperText={errors[a.id] ? "Auditor comment is required to mark as anomaly" : ""}
                 />
               </Box>
 
@@ -368,8 +377,8 @@ const [cache, setCache] = useState(() => {
                   {savingId === a.id
                     ? "Saving..."
                     : a.has_anomaly
-                    ? "Already Marked"
-                    : "Mark as Anomaly"}
+                      ? "Already Marked"
+                      : "Mark as Anomaly"}
                 </Button>
                 <Button
                   variant="outlined"

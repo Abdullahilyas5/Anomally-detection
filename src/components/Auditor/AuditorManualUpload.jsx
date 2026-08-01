@@ -276,19 +276,18 @@ const AuditorManualUpload = () => {
 
             <p>
               <span className="font-medium">Risk Score:</span>{' '}
-              {(result.risk_score * 100).toFixed(2)}%
+              {Math.min(100, Math.max(0, result.risk_score > 1 ? result.risk_score : result.risk_score * 100)).toFixed(2)}%
             </p>
 
             <p>
               <span className="font-medium">Risk Level:</span>{' '}
               <span
-                className={`font-semibold ${
-                  result.risk_level === 'High'
+                className={`font-semibold ${result.risk_level === 'High'
                     ? 'text-red-600'
                     : result.risk_level === 'Medium'
-                    ? 'text-yellow-600'
-                    : 'text-green-600'
-                }`}
+                      ? 'text-yellow-600'
+                      : 'text-green-600'
+                  }`}
               >
                 {result.risk_level}
               </span>
